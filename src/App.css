@@ -334,7 +334,7 @@ section.visible {
 
 .responsibilities-list li::before,
 .features-list li::before {
-  content: 'â†’';
+  content: '->';
   position: absolute;
   left: 0;
   color: #1e90ff;
@@ -643,25 +643,13 @@ section.visible .tile {
   box-shadow: 0 5px 10px rgba(30, 144, 255, 0.2);
 }
 
-
-.project-tile .learn-more {
-  display: inline-block;
-  margin-top: 10px;
-  color: #1e90ff;
-  text-decoration: none;
-}
-
-.project-tile:hover .learn-more {
-  text-decoration: underline;
-}
-
 /* Enhanced ideas tile animations */
-.ideas-tiles .idea-tile {
+.idea-tile {
   animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
-  background-color: #444;
   border-left: 5px solid #1e90ff;
+  transform: perspective(1000px);
+  width: 45%;
   margin: 15px 0;
-  width: 45%; /* Increase width */
 }
 
 @keyframes fadeInUp {

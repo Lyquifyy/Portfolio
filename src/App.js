@@ -55,7 +55,7 @@ function App() {
     {
       title: 'Software Engineer Intern',
       company: 'Integra Technologies',
-      period: 'June 2023 - Present',
+      period: 'March 2024 - Present',
       description: 'Work on IT Requests from Integra Employees regarding Enhancements/Problems in the UI or backend database related issues.',
       responsibilities: [
         'Develop and maintain internal web applications',
@@ -64,12 +64,12 @@ function App() {
         'Handle user support tickets and provide technical solutions'
       ],
       technologies: ['SQL', 'JavaScript', 'HTML/CSS'],
-      achievements: 'Improved system response time by 40% through database optimization'
+      achievements: 'I have successfully resolved over 100 user IT requests'
     },
     {
       title: 'Student Assistant',
       company: 'Wichita State University',
-      period: 'January 2023 - May 2023',
+      period: 'May 2023 - March 2024',
       description: 'Tested structural integrity of aircraft/vehicle seats.',
       responsibilities: [
         'Conducted thorough testing procedures',
@@ -78,7 +78,7 @@ function App() {
         'Maintained testing equipment'
       ],
       technologies: ['Testing Equipment', 'Documentation Software'],
-      achievements: 'Successfully completed over 100 structural integrity tests'
+      achievements: 'Completed countless successful tests for various clients'
     }
   ];
 
@@ -342,8 +342,7 @@ function App() {
             <img src={profileImage} alt="Zander Erwin" className="profile-pic" />
             <div className="about-text">
               <p>
-                As a dedicated student at Wichita State University, I am committed to continuous learning and growth. I am passionate about developing a deep and comprehensive understanding of my field, always striving for excellence and mastery in everything I undertake.
-              </p>
+                As a dedicated student at Wichita State University, I am committed to continuous learning and growth. My passion lies in developing a deep and comprehensive understanding of my field, where I continually strive for excellence and mastery. Through my experiences, I've gained proficiency in various technologies, including SQL, TypeScript, React, and Python. This diverse skill set allows me to approach challenges with a well-rounded perspective and apply innovative solutions in my projects.              </p>
               <h2>Technologies I'm Familiar With</h2>
               <ul className="tech-list">
                 <li>JavaScript</li>
