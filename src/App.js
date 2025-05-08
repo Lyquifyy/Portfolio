@@ -63,7 +63,7 @@ function App() {
         'Collaborate with cross-functional teams to implement UI enhancements',
         'Handle user support tickets and provide technical solutions'
       ],
-      technologies: ['SQL', 'JavaScript', 'HTML/CSS'],
+      technologies: ['PL/SQL', 'JavaScript', 'Oracle Apex/Forms'],
       achievements: 'I have successfully resolved over 100 user IT requests'
     },
     {
@@ -342,13 +342,13 @@ function App() {
             <img src={profileImage} alt="Zander Erwin" className="profile-pic" />
             <div className="about-text">
               <p>
-                As a dedicated student at Wichita State University, I am committed to continuous learning and growth. My passion lies in developing a deep and comprehensive understanding of my field, where I continually strive for excellence and mastery. Through my experiences, I've gained proficiency in various technologies, including SQL, TypeScript, React, and Python. This diverse skill set allows me to approach challenges with a well-rounded perspective and apply innovative solutions in my projects.              </p>
+                As a dedicated student at Wichita State University, I am committed to continuous learning and growth. My passion lies in developing a deep and comprehensive understanding of my field, where I continually strive for excellence and mastery. Through my experiences, I've gained proficiency in various technologies, including PL/SQL, TypeScript, React, and Python. This diverse skill set allows me to approach challenges with a well-rounded perspective and apply innovative solutions in my projects.              </p>
               <h2>Technologies I'm Familiar With</h2>
               <ul className="tech-list">
                 <li>JavaScript</li>
                 <li>React</li>
                 <li>Node.js</li>
-                <li>MySQL</li>
+                <li>PL/SQL</li>
                 <li>TypeScript</li>
                 <li>Python</li>
                 <li>C++</li>
