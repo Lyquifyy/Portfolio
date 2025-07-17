@@ -7,15 +7,16 @@ import { ThemeSwitch } from './components/ThemeSwitch';
 
 function App() {
   const [showIntro, setShowIntro] = useState(true);
+  const [introAnimating, setIntroAnimating] = useState(false);
   const [typedName, setTypedName] = useState("");
   const [showCursor, setShowCursor] = useState(true);
   const [selectedItem, setSelectedItem] = useState(null);
   const [popupType, setPopupType] = useState(null);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-});
+      name: '',
+      email: '',
+      message: ''
+  });
 
   const projects = [
     {
@@ -137,11 +138,15 @@ function App() {
 
   const handleIntroClick = () => {
     const introScreen = document.querySelector('.intro-screen');
-    introScreen.classList.add('fade-out');
-
     setTimeout(() => {
-      setShowIntro(false);
-    }, 800);
+      setIntroAnimating(true);  // starts the line exit animation
+    }, 100);
+    setTimeout(() => {
+    introScreen.classList.add('fade-out'); 
+      setTimeout(() => {
+        setShowIntro(false);
+      }, 500);
+    }, 550);
   };
 
   const handleScrollTo = (sectionId) => {
@@ -309,6 +314,23 @@ function App() {
     <div className="App">
       {showIntro && (
         <div className="intro-screen" onClick={handleIntroClick}>
+          {/* Animated diagonal lines */}
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
+            {[...Array(2)].map((_, i) => (
+              <div
+                key={i}
+                className="diagonalLine"
+                style={{
+                  top: `${i * 10}%`,
+                  marginLeft: '-30%',
+                  backgroundColor: i % 2 === 0 ? '#228B22' : '#D2691E',
+                  transform: introAnimating ? 'rotate(-45deg) translateX(100%)' : 'rotate(-45deg) translateX(0)',
+                  opacity: introAnimating ? 0 : 1,
+                  transitionDelay: introAnimating ? `${i * 75}ms` : '0ms',
+                }}
+              />
+            ))}
+          </div>
           <h1>
             {typedName}
             <span style={{ opacity: showCursor ? 1 : 0 }}>|</span>
@@ -329,22 +351,24 @@ function App() {
             <li><a href="#contact" onClick={() => handleScrollTo('contact')}>Contact</a></li>
           </ul>
         </nav>
+        <ThemeSwitch />
         <div className="social-links">
           <a href="https://www.linkedin.com/in/zander-erwin-79b376271" target="_blank" rel="noopener noreferrer">
             <img src={linkedinImage} alt="linkedin" />
           </a>
         </div>
-        <ThemeSwitch />
       </header>
 
       <main className="main-content">
         <section id="about" className="about-section section-left">
-          <h1>About Me</h1>
-          <div className="about-container">
+          <div className="profile-container">
+            <h1>Fullstack Developer</h1>
             <img src={profileImage} alt="Zander Erwin" className="profile-pic" />
+          </div>
+          <div className="about-container">
             <div className="about-text">
               <p>
-                As a dedicated student at Wichita State University, I am committed to continuous learning and growth. My passion lies in developing a deep and comprehensive understanding of my field, where I continually strive for excellence and mastery. Through my experiences, I've gained proficiency in various technologies, including PL/SQL, TypeScript, React, and Python. This diverse skill set allows me to approach challenges with a well-rounded perspective and apply innovative solutions in my projects.              </p>
+                As astudent at Wichita State University, I am committed to continuous learning and growth. My passion lies in developing a deep and comprehensive understanding of my field, where I continually strive for excellence and mastery. Through my experiences, I've gained proficiency in various technologies, including PL/SQL, TypeScript, React, and Python. This diverse skill set allows me to approach challenges with a well-rounded perspective and apply innovative solutions in my projects.              </p>
               <h2>Technologies I'm Familiar With</h2>
               <ul className="tech-list">
                 <li>JavaScript</li>

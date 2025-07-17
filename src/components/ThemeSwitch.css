@@ -1,0 +1,34 @@
+:root {
+  /* Light theme fallbacks */
+  --bg-light: #ffffff;
+  --fg-light: #111111;
+  --header-light: #aaaaaa;
+
+  /* Dark theme fallbacks */
+  --bg-dark: #121212;
+  --fg-dark: #f0f0f0;
+  --header-dark: #222222;
+}
+
+/* Map the “active” variables based on data-theme */
+[data-theme="light"] {
+  --bg: var(--bg-light);
+  --fg: var(--fg-light);
+  --header-bg: var(--header-light);
+}
+
+[data-theme="dark"] {
+  --bg: var(--bg-dark);
+  --fg: var(--fg-dark);
+  --header-bg: var(--header-dark);
+}
+.theme-switch{
+    background-color: transparent;
+    border: none;
+    color: var(--fg);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 10px;
+    transition: color 0.5s ease;
+    font-weight: 500;
+}
