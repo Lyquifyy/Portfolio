@@ -271,7 +271,7 @@ section.visible {
   box-shadow: 0 4px 10px var(--shadow-color);
   text-align: center;
   margin: 20px auto;
-  margin-top: 10%;
+  margin-top: 5%;
   max-width: 90%;
 }
 
