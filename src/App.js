@@ -4,6 +4,7 @@ import profileImage from './images/portfolio_main.jpg';
 import linkedinImage from './images/linkedin.png';
 import './App.css';
 import { ThemeSwitch } from './components/ThemeSwitch';
+import ParticleCanvas from "./components/ParticleCanvas";
 
 function App() {
   const [showIntro, setShowIntro] = useState(true);
@@ -66,7 +67,7 @@ function App() {
         'Handle user support tickets and provide technical solutions'
       ],
       technologies: ['PL/SQL', 'JavaScript', 'Oracle Apex/Forms'],
-      achievements: 'I have successfully resolved over 100 user IT requests'
+      achievements: 'Completing 10-15 IT request per week on average, improving internal processes and user satisfaction.'
     },
     {
       title: 'Student Assistant',
@@ -110,6 +111,33 @@ function App() {
       ],
       technologies: ['WebRTC', 'Socket.io', 'React', 'MongoDB'],
       timeline: 'Expected development: 4 months'
+    },
+    {
+      title: 'Game Engine',
+      description: 'Developing a game engine that allows for easy game development.',
+      concept: 'A versatile game engine that simplifies the game development process for indie developers',
+      features: [
+        'Cross-platform support',
+        'Visual scripting tools',
+        'Asset management system',
+        'Built-in physics engine'
+      ],
+      technologies: ['C#', 'OpenGL'],
+      timeline: 'Expected development: 12 months'
+    },
+    {
+      title: 'Job Finding Tool',
+      description: 'Creating a tool that helps you find jobs based on your skills and preferences.',
+      concept: 'An intelligent job matching platform that connects users with suitable job opportunities',
+      features: [
+        'AI-driven job recommendations',
+        'Resume builder',
+        'Interview preparation resources',
+        'Company reviews and ratings',
+        'Dynamic job alerts',
+      ],
+      technologies: ['Python', 'React'],
+      timeline: 'Expected development: 8 months'
     }
   ];
 
@@ -195,15 +223,46 @@ function App() {
       sections.forEach(section => {
         const sectionTop = section.getBoundingClientRect().top;
         const windowHeight = window.innerHeight;
-        if (sectionTop < windowHeight * 0.8) {
+        if (sectionTop < windowHeight * 0.7) {
           section.classList.add('visible');
         }
       });
     };
 
-    window.addEventListener('scroll', handleScroll);
+  window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  });
+
+  document.querySelectorAll('section').forEach(section => {
+    observer.observe(section);
+  });
+
+  // Intersection Observer for staggered tile animations
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+  };
+
+  const tileObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate');
+      }
+    });
+  }, observerOptions);
+
+  // Observe all tiles
+  document.querySelectorAll('.tile').forEach(tile => {
+    tileObserver.observe(tile);
+  });
 
   const renderPopupContent = () => {
     if (!selectedItem) return null;
@@ -338,9 +397,8 @@ function App() {
           <p>Click to Enter</p>
         </div>
       )}
-
     <div className="animated-bg" />
-      
+      <ParticleCanvas />
       <header>
         <nav>
           <ul>
@@ -360,15 +418,15 @@ function App() {
       </header>
 
       <main className="main-content">
-        <section id="about" className="about-section section-left">
-          <div className="profile-container">
-            <h1>Fullstack Developer</h1>
+        <section id="about" className="about-section fade-left">
+          <div className="profile-container" style={{ animation: 'breathe 4s ease-in-out infinite' }}>
+            <h1>Software Developer</h1>
             <img src={profileImage} alt="Zander Erwin" className="profile-pic" />
           </div>
           <div className="about-container">
             <div className="about-text">
               <p>
-                As astudent at Wichita State University, I am committed to continuous learning and growth. My passion lies in developing a deep and comprehensive understanding of my field, where I continually strive for excellence and mastery. Through my experiences, I've gained proficiency in various technologies, including PL/SQL, TypeScript, React, and Python. This diverse skill set allows me to approach challenges with a well-rounded perspective and apply innovative solutions in my projects.              </p>
+                I'm a Software Developer and student at Wichita State University with a focus on building elegant, high-performing applications. I bring a diverse technical toolkit—including PL/SQL, TypeScript, React, and Python—and a commitment to continuous learning. I specialize in translating complex challenges into polished, user-friendly solutions, and thrive in environments that reward curiosity and innovation.</p>
               <h2>Technologies I'm Familiar With</h2>
               <ul className="tech-list">
                 <li>JavaScript</li>
@@ -383,7 +441,7 @@ function App() {
           </div>
         </section>
 
-        <section id="projects">
+        <section id="projects"  className="projects-section fade-right">
           <h1>Projects</h1>
           <div className="projects-tiles">
             {projects.map((project, index) => (
@@ -400,7 +458,7 @@ function App() {
           </div>
         </section>
 
-        <section id="experience">
+        <section id="experience" className="experience-section fade-left">
           <h1>Experience</h1>
           <div className="experience-tiles">
             {experiences.map((exp, index) => (
@@ -413,7 +471,7 @@ function App() {
           </div>
         </section>
 
-        <section id="ideas">
+        <section id="ideas" className="ideas-section fade-right">
           <h1>Future Ideas</h1>
           <div className="ideas-tiles">
             {ideas.map((idea, index) => (
@@ -425,7 +483,7 @@ function App() {
           </div>
         </section>
 
-        <section id="contact" className="contact-section">
+        <section id="contact" className="contact-section fade-left">
           <h1>Get In Touch</h1>
           <form onSubmit={handleSubmit} className="contact-form">
             <div className="form-group">
