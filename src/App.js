@@ -52,6 +52,14 @@ function App() {
       challenges: 'Integrating GPT models and creating meaningful conversation flows.',
       outcome: 'Created an interactive chatbot that helps users achieve their fitness goals through personalized guidance.'
     },
+    {
+      title: 'Basic Fitness App',
+      description: 'Developed a simple fitness application to track quick workouts.',
+      tech: ['HTML', 'CSS', 'JavaScript', 'React Native', 'Firebase'],
+      details: 'A fitness app that allows users to log workouts with complete customizability, set fitness goals, and track progress over time.',
+      challenges: 'Allowing user customizability while ensuring a user-friendly interface.',
+      outcome: 'Achieved a functional fitness app that encourages users to maintain an active lifestyle through easy workout tracking.'
+    },
   ];
 
   const experiences = [
