@@ -1,553 +1,495 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import emailjs from 'emailjs-com';
 import profileImage from './images/portfolio_main.jpg';
-import linkedinImage from './images/linkedin.png';
 import './App.css';
 import { ThemeSwitch } from './components/ThemeSwitch';
-import ParticleCanvas from "./components/ParticleCanvas";
+import OrbitCanvas from './components/OrbitCanvas';
+import ScrollDots from './components/ScrollDots';
 
-function App() {
-  const [showIntro, setShowIntro] = useState(true);
-  const [introAnimating, setIntroAnimating] = useState(false);
-  const [typedName, setTypedName] = useState("");
-  const [showCursor, setShowCursor] = useState(true);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [popupType, setPopupType] = useState(null);
-  const [formData, setFormData] = useState({
-      name: '',
-      email: '',
-      message: ''
-  });
+const SECTION_IDS    = ['hero', 'about', 'projects', 'experience', 'ideas', 'contact'];
+const SECTION_LABELS = ['Home', 'About', 'Projects', 'Experience', 'Ideas', 'Contact'];
 
-  const projects = [
-    {
-      title: 'Text Based Game',
-      description: 'Designed to allow directional movement within a text-based game.',
-      tech: ['C++'],
-      details: 'A command-line adventure game that demonstrates core programming concepts including user input handling, game state management, and character movement mechanics.',
-      challenges: 'Implementing an intuitive navigation system and maintaining game state across different scenes.',
-      outcome: 'Successfully created an engaging text-based adventure that serves as a foundation for more complex game development projects.'
-    },
-    {
-      title: 'MaddMund Website',
-      description: 'My first website where I learned the basics of how a website should run/look.',
-      tech: ['HTML', 'CSS', 'JavaScript'],
-      details: 'A responsive website showcasing fundamental web development principles and best practices.',
-      challenges: 'Learning responsive design principles and cross-browser compatibility.',
-      outcome: 'Developed a fully functional website that effectively demonstrates core web development skills.'
-    },
-    {
-      title: 'Portfolio Website',
-      description: 'Learn how I developed my website building skills by creating my own portfolio website.',
-      tech: ['HTML', 'CSS', 'JavaScript', 'GitHub Pages'],
-      details: 'A professional portfolio website built to showcase my projects and skills to potential employers.',
-      challenges: 'Creating an engaging user experience while maintaining clean, maintainable code.',
-      outcome: 'Successfully deployed a modern, responsive portfolio that effectively presents my work and capabilities.'
-    },
-    {
-      title: 'AI Fitbot',
-      description: 'Learn how I developed my first Chatbot using a basic GPT Model along with Static Responses.',
-      tech: ['HTML', 'CSS', 'JavaScript', 'Python'],
-      details: 'An AI-powered fitness assistant that provides workout recommendations and answers fitness-related questions.',
-      challenges: 'Integrating GPT models and creating meaningful conversation flows.',
-      outcome: 'Created an interactive chatbot that helps users achieve their fitness goals through personalized guidance.'
-    },
-    {
-      title: 'Basic Fitness App',
-      description: 'Developed a simple fitness application to track quick workouts.',
-      tech: ['HTML', 'CSS', 'JavaScript', 'React Native', 'Firebase'],
-      details: 'A fitness app that allows users to log workouts with complete customizability, set fitness goals, and track progress over time.',
-      challenges: 'Allowing user customizability while ensuring a user-friendly interface.',
-      outcome: 'Achieved a functional fitness app that encourages users to maintain an active lifestyle through easy workout tracking.'
-    },
-  ];
+const PROJECTS = [
+  {
+    num: '01',
+    title: 'Text Based Game',
+    techs: ['C++'],
+    description:
+      'A command-line adventure game featuring complex navigation systems and robust state management. Players explore multi-room environments, manage an inventory, and engage with an interactive storyline.',
+    highlights: [
+      'Multi-room navigation system',
+      'Inventory and state management',
+      'Interactive branching storyline',
+    ],
+  },
+  {
+    num: '02',
+    title: 'MaddMund Website',
+    techs: ['HTML', 'CSS', 'JavaScript'],
+    description:
+      'My first real web project — built from scratch to learn the fundamentals of HTML, CSS, and vanilla JavaScript. Foundational work that shaped my understanding of the web platform.',
+    highlights: [
+      'Static site architecture',
+      'Vanilla JS DOM manipulation',
+      'Responsive design fundamentals',
+    ],
+  },
+  {
+    num: '03',
+    title: 'Portfolio Website',
+    techs: ['React', 'JavaScript', 'CSS', 'GitHub Pages'],
+    description:
+      'This very portfolio — built with React and deployed on GitHub Pages. Continuously evolved with new design approaches, animations, and content as my skills grew.',
+    highlights: [
+      'React SPA architecture',
+      'CSS animations and theming',
+      'GitHub Pages CI/CD deployment',
+      'Responsive and accessible',
+    ],
+  },
+  {
+    num: '04',
+    title: 'AI Fitbot',
+    techs: ['HTML', 'CSS', 'JavaScript', 'Python'],
+    description:
+      'A GPT-powered fitness chatbot that provides personalized workout advice and nutrition guidance. Integrates a Python backend with a clean, conversational front-end interface.',
+    highlights: [
+      'GPT API integration',
+      'Python Flask backend',
+      'Conversational UI design',
+      'Personalized fitness recommendations',
+    ],
+  },
+  {
+    num: '05',
+    title: 'Basic Fitness App',
+    techs: ['React Native', 'Firebase', 'JavaScript'],
+    description:
+      'A cross-platform mobile fitness tracker built with React Native and Firebase. Users can create custom workout plans, log exercises, and track their progress over time.',
+    highlights: [
+      'React Native cross-platform build',
+      'Firebase real-time database',
+      'Custom workout builder',
+      'Progress tracking and history',
+    ],
+  },
+];
 
-  const experiences = [
-    {
-      title: 'Software Engineer Intern',
-      company: 'Integra Technologies',
-      period: 'March 2024 - Present',
-      description: 'Work on IT Requests from Integra Employees regarding Enhancements/Problems in the UI or backend database related issues.',
-      responsibilities: [
-        'Develop and maintain internal web applications',
-        'Troubleshoot and resolve database-related issues',
-        'Collaborate with cross-functional teams to implement UI enhancements',
-        'Handle user support tickets and provide technical solutions'
-      ],
-      technologies: ['PL/SQL', 'JavaScript', 'Oracle Apex/Forms'],
-      achievements: 'Completing 10-15 IT request per week on average, improving internal processes and user satisfaction.'
-    },
-    {
-      title: 'Student Assistant',
-      company: 'Wichita State University',
-      period: 'May 2023 - March 2024',
-      description: 'Tested structural integrity of aircraft/vehicle seats.',
-      responsibilities: [
-        'Conducted thorough testing procedures',
-        'Documented test results and findings',
-        'Assisted in research data collection',
-        'Maintained testing equipment'
-      ],
-      technologies: ['Testing Equipment', 'Documentation Software'],
-      achievements: 'Completed countless successful tests for various clients'
-    }
-  ];
+const EXPERIENCES = [
+  {
+    role: 'Software Engineer Intern',
+    company: 'Integra Technologies',
+    period: 'March 2024 – Present',
+    techs: ['PL/SQL', 'JavaScript', 'Oracle Apex', 'Oracle Forms'],
+    description:
+      'Building and maintaining enterprise software solutions for a leading semiconductor services company.',
+    responsibilities: [
+      'Handle 10–15 IT requests per week across multiple internal systems',
+      'Develop UI improvements in Oracle Apex and Oracle Forms',
+      'Write and optimize PL/SQL queries for backend database operations',
+      'Collaborate with senior engineers on system architecture improvements',
+    ],
+  },
+  {
+    role: 'Student Assistant',
+    company: 'Wichita State University',
+    period: 'May 2023 – March 2024',
+    techs: ['Data Analysis', 'Documentation', 'Research'],
+    description:
+      'Supported aerospace and automotive research through structural integrity testing and data analysis.',
+    responsibilities: [
+      'Conducted structural integrity tests on aircraft and vehicle seats',
+      'Documented testing data and compiled detailed research reports',
+      'Assisted faculty researchers with experimental setup and analysis',
+      'Maintained accurate records for compliance and research continuity',
+    ],
+  },
+];
 
-  const ideas = [
-    {
-      title: 'Mobile Workout/Game Application',
-      description: 'Developing a mobile application that combines fitness with gaming.',
-      concept: 'A gamified fitness app that turns workouts into interactive adventures',
-      features: [
-        'Real-time workout tracking',
-        'Achievement system',
-        'Social competition features',
-        'Customizable workout plans'
-      ],
-      technologies: ['React Native', 'Firebase', 'Node.js'],
-      timeline: 'Expected development: 6 months'
-    },
-    {
-      title: 'Communication Application',
-      description: 'Creating an application that allows you to chat with friends',
-      concept: 'A modern messaging platform with unique features for enhanced communication',
-      features: [
-        'Real-time messaging',
-        'End-to-end encryption',
-        'Custom emoji system',
-        'Voice and video calls'
-      ],
-      technologies: ['WebRTC', 'Socket.io', 'React', 'MongoDB'],
-      timeline: 'Expected development: 4 months'
-    },
-    {
-      title: 'Game Engine',
-      description: 'Developing a game engine that allows for easy game development.',
-      concept: 'A versatile game engine that simplifies the game development process for indie developers',
-      features: [
-        'Cross-platform support',
-        'Visual scripting tools',
-        'Asset management system',
-        'Built-in physics engine'
-      ],
-      technologies: ['C#', 'OpenGL'],
-      timeline: 'Expected development: 12 months'
-    },
-    {
-      title: 'Job Finding Tool',
-      description: 'Creating a tool that helps you find jobs based on your skills and preferences.',
-      concept: 'An intelligent job matching platform that connects users with suitable job opportunities',
-      features: [
-        'AI-driven job recommendations',
-        'Resume builder',
-        'Interview preparation resources',
-        'Company reviews and ratings',
-        'Dynamic job alerts',
-      ],
-      technologies: ['Python', 'React'],
-      timeline: 'Expected development: 8 months'
-    }
-  ];
+const IDEAS = [
+  {
+    title: 'Mobile Workout / Game App',
+    techs: ['React Native', 'Firebase', 'Node.js'],
+    timeline: '~6 months',
+    description:
+      'A gamified fitness app that turns workouts into RPG-style progression. Users level up, unlock abilities, and compete with friends — making exercise genuinely addictive.',
+    features: ['RPG progression system', 'Social challenges', 'Real-time leaderboards', 'Custom workout creation'],
+  },
+  {
+    title: 'Communication Application',
+    techs: ['WebRTC', 'Socket.io', 'React', 'MongoDB'],
+    timeline: '~4 months',
+    description:
+      'A real-time communication platform with video calling, messaging, and collaborative workspaces — a private, self-hostable alternative for small teams.',
+    features: ['P2P video via WebRTC', 'Real-time messaging', 'Collaborative workspaces', 'Self-hostable'],
+  },
+  {
+    title: 'Game Engine',
+    techs: ['C#', 'OpenGL'],
+    timeline: '~12 months',
+    description:
+      'A 2D/3D game engine built from first principles in C# using OpenGL for rendering — a deep dive into graphics programming, physics simulation, and entity-component systems.',
+    features: ['Custom OpenGL renderer', 'Physics simulation', 'Entity-component system', 'Scene editor'],
+  },
+  {
+    title: 'Job Finding Tool',
+    techs: ['Python', 'React', 'ML'],
+    timeline: '~8 months',
+    description:
+      'An AI-powered job matching platform that scrapes listings, analyzes your resume, and surfaces roles that are genuinely good fits — not just keyword matches.',
+    features: ['Resume parsing and analysis', 'Smart job matching', 'Application tracking', 'Interview prep'],
+  },
+];
 
+export default function App() {
+  const [introFading,     setIntroFading]     = useState(false);
+  const [introVisible,    setIntroVisible]    = useState(true);
+  const [activeSection,   setActiveSection]   = useState(0);
+  const [selectedProject, setSelectedProject] = useState(0);
+  const [formData,        setFormData]        = useState({ name: '', email: '', message: '' });
+  const [formStatus,      setFormStatus]      = useState('');
+
+  // Auto-fade intro
   useEffect(() => {
-    const name = "Zander Erwin";
-    let index = 0;
-
-    const typingInterval = setInterval(() => {
-      setTypedName(name.substring(0, index + 1));
-      index++;
-
-      if (index === name.length) {
-        clearInterval(typingInterval);
-      }
-    }, 205);
-
-    const cursorInterval = setInterval(() => {
-      setShowCursor((prev) => !prev);
-    }, 700);
-
-    return () => {
-      clearInterval(typingInterval);
-      clearInterval(cursorInterval);
-    };
+    const t1 = setTimeout(() => setIntroFading(true), 1800);
+    const t2 = setTimeout(() => setIntroVisible(false), 2500);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
   }, []);
 
-  const handleIntroClick = () => {
-    const introScreen = document.querySelector('.intro-screen');
-    setTimeout(() => {
-      setIntroAnimating(true);  // starts the line exit animation
-    }, 100);
-    setTimeout(() => {
-    introScreen.classList.add('fade-out'); 
-      setTimeout(() => {
-        setShowIntro(false);
-      }, 500);
-    }, 550);
-  };
+  // Scroll reveals via IntersectionObserver
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('revealed'); }),
+      { threshold: 0.08, rootMargin: '0px 0px -50px 0px' }
+    );
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
-  const handleScrollTo = (sectionId) => {
-    const section = document.getElementById(sectionId);
-    section.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Active section tracking for scroll dots
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            const idx = SECTION_IDS.indexOf(e.target.id);
+            if (idx !== -1) setActiveSection(idx);
+          }
+        });
+      },
+      { threshold: 0.35 }
+    );
+    SECTION_IDS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+    return () => observer.disconnect();
+  }, []);
 
-  const openPopup = (item, type) => {
-    setSelectedItem(item);
-    setPopupType(type);
-  };
-
-  const closePopup = () => {
-    setSelectedItem(null);
-    setPopupType(null);
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleSubmit = (e) => {
-      e.preventDefault();
-
-      const templateParams = {
-          from_name: formData.name,
-          from_email: formData.email,
-          message: formData.message
-      };
-
-      emailjs.send('service_urtbt14', 'template_8sfqyrn', templateParams, 'PTuqiFviGAOMEb1v5')
-          .then((response) => {
-              console.log('SUCCESS!', response.status, response.text);
-              alert('Your message has been sent!');
-              setFormData({ name: '', email: '', message: '' }); // Reset form
-          })
-          .catch((error) => {
-              console.error('FAILED...', error);
-              alert('Failed to send message. Please try again later.');
-          });
-  };
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = document.querySelectorAll('section');
-      sections.forEach(section => {
-        const sectionTop = section.getBoundingClientRect().top;
-        const windowHeight = window.innerHeight;
-        if (sectionTop < windowHeight * 0.7) {
-          section.classList.add('visible');
-        }
-      });
+    e.preventDefault();
+    const params = {
+      from_name:  formData.name,
+      from_email: formData.email,
+      message:    formData.message,
     };
-
-  window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  });
-
-  document.querySelectorAll('section').forEach(section => {
-    observer.observe(section);
-  });
-
-  // Intersection Observer for staggered tile animations
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-
-  const tileObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('animate');
-      }
-    });
-  }, observerOptions);
-
-  // Observe all tiles
-  document.querySelectorAll('.tile').forEach(tile => {
-    tileObserver.observe(tile);
-  });
-
-  const renderPopupContent = () => {
-    if (!selectedItem) return null;
-
-    switch (popupType) {
-      case 'project':
-        return (
-          <div className="popup-content">
-            <button className="close-button" onClick={closePopup}>
-              X
-            </button>
-            <h2>{selectedItem.title}</h2>
-            <div className="popup-section">
-              <h3>Overview</h3>
-              <p>{selectedItem.details}</p>
-            </div>
-            <div className="popup-section">
-              <h3>Challenges</h3>
-              <p>{selectedItem.challenges}</p>
-            </div>
-            <div className="popup-section">
-              <h3>Outcome</h3>
-              <p>{selectedItem.outcome}</p>
-            </div>
-            <div className="popup-section">
-              <h3>Technologies Used</h3>
-              <div className="tech-stack">
-                {selectedItem.tech.map((tech, idx) => (
-                  <span key={idx}>{tech}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'experience':
-        return (
-          <div className="popup-content">
-            <button className="close-button" onClick={closePopup}>
-              X
-            </button>
-            <h2>{selectedItem.title}</h2>
-            <h3 className="company-name">{selectedItem.company}</h3>
-            <p className="period">{selectedItem.period}</p>
-            <div className="popup-section">
-              <h3>Key Responsibilities</h3>
-              <ul className="responsibilities-list">
-                {selectedItem.responsibilities.map((resp, idx) => (
-                  <li key={idx}>{resp}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="popup-section">
-              <h3>Technologies Used</h3>
-              <div className="tech-stack">
-                {selectedItem.technologies.map((tech, idx) => (
-                  <span key={idx}>{tech}</span>
-                ))}
-              </div>
-            </div>
-            <div className="popup-section">
-              <h3>Key Achievement</h3>
-              <p>{selectedItem.achievements}</p>
-            </div>
-          </div>
-        );
-
-      case 'idea':
-        return (
-          <div className="popup-content">
-            <button className="close-button" onClick={closePopup}>
-              X
-            </button>
-            <h2>{selectedItem.title}</h2>
-            <div className="popup-section">
-              <h3>Concept</h3>
-              <p>{selectedItem.concept}</p>
-            </div>
-            <div className="popup-section">
-              <h3>Planned Features</h3>
-              <ul className="features-list">
-                {selectedItem.features.map((feature, idx) => (
-                  <li key={idx}>{feature}</li>
-                ))}
-              </ul>
-            </div>
-            <div className="popup-section">
-              <h3>Proposed Technologies</h3>
-              <div className="tech-stack">
-                {selectedItem.technologies.map((tech, idx) => (
-                  <span key={idx}>{tech}</span>
-                ))}
-              </div>
-            </div>
-            <div className="popup-section">
-              <h3>Timeline</h3>
-              <p>{selectedItem.timeline}</p>
-            </div>
-          </div>
-        );
-
-      default:
-        return null;
-    }
+    emailjs
+      .send('service_urtbt14', 'template_8sfqyrn', params, 'PTuqiFviGAOMEb1v5')
+      .then(() => {
+        setFormStatus('success');
+        setFormData({ name: '', email: '', message: '' });
+      })
+      .catch(() => setFormStatus('error'));
   };
 
   return (
-    <div className="App">
-      {showIntro && (
-        <div className="intro-screen" onClick={handleIntroClick}>
-          {/* Animated diagonal lines */}
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, overflow: 'hidden' }}>
-            {[...Array(2)].map((_, i) => (
-              <div
-                key={i}
-                className="diagonalLine"
-                style={{
-                  top: `${i * 10}%`,
-                  marginLeft: '-30%',
-                  backgroundColor: i % 2 === 0 ? '#228B22' : '#D2691E',
-                  transform: introAnimating ? 'rotate(-45deg) translateX(100%)' : 'rotate(-45deg) translateX(0)',
-                  opacity: introAnimating ? 0 : 1,
-                  transitionDelay: introAnimating ? `${i * 75}ms` : '0ms',
-                }}
-              />
-            ))}
+    <div className="app">
+      {/* Background layers */}
+      <div className="grain-overlay" aria-hidden="true" />
+      <div className="dot-matrix"   aria-hidden="true" />
+
+      {/* Intro overlay — auto-fades after ~1.8s */}
+      {introVisible && (
+        <div className={`intro-overlay${introFading ? ' intro-overlay--fading' : ''}`} aria-hidden="true">
+          <div className="intro-overlay__content">
+            <span className="intro-overlay__name">Zander Erwin</span>
+            <span className="intro-overlay__sub">Software Engineer</span>
           </div>
-          <h1>
-            {typedName}
-            <span style={{ opacity: showCursor ? 1 : 0 }}>|</span>
-          </h1>
-          <p>Click to Enter</p>
         </div>
       )}
-    <div className="animated-bg" />
-      <ParticleCanvas />
-      <header>
-        <nav>
-          <ul>
-            <li><a href="#about" onClick={() => handleScrollTo('about')}>About Me</a></li>
-            <li><a href="#projects" onClick={() => handleScrollTo('projects')}>Projects</a></li>
-            <li><a href="#experience" onClick={() => handleScrollTo('experience')}>Experience</a></li>
-            <li><a href="#ideas" onClick={() => handleScrollTo('ideas')}>Future Ideas</a></li>
-            <li><a href="#contact" onClick={() => handleScrollTo('contact')}>Contact</a></li>
-          </ul>
-        </nav>
-        <ThemeSwitch />
-        <div className="social-links">
-          <a href="https://www.linkedin.com/in/zander-erwin-79b376271" target="_blank" rel="noopener noreferrer">
-            <img src={linkedinImage} alt="linkedin" />
+
+      {/* Sticky header */}
+      <header className="header">
+        <div className="header__logo">ZE</div>
+        <div className="header__actions">
+          <a href="https://github.com/Lyquifyy" target="_blank" rel="noopener noreferrer" className="header__link">
+            GitHub
           </a>
+          <a href="https://linkedin.com/in/zander-erwin" target="_blank" rel="noopener noreferrer" className="header__link">
+            LinkedIn
+          </a>
+          <ThemeSwitch />
         </div>
       </header>
 
-      <main className="main-content">
-        <section id="about" className="about-section fade-left">
-          <div className="profile-container" style={{ animation: 'breathe 4s ease-in-out infinite' }}>
-            <h1>Software Developer</h1>
-            <img src={profileImage} alt="Zander Erwin" className="profile-pic" />
-          </div>
-          <div className="about-container">
-            <div className="about-text">
-              <p>
-                I'm a Software Developer and student at Wichita State University with a focus on building elegant, high-performing applications. I bring a diverse technical toolkit—including PL/SQL, TypeScript, React, and Python—and a commitment to continuous learning. I specialize in translating complex challenges into polished, user-friendly solutions, and thrive in environments that reward curiosity and innovation.</p>
-              <h2>Technologies I'm Familiar With</h2>
-              <ul className="tech-list">
-                <li>JavaScript</li>
-                <li>React</li>
-                <li>Node.js</li>
-                <li>PL/SQL</li>
-                <li>TypeScript</li>
-                <li>Python</li>
-                <li>C++</li>
-              </ul>
+      {/* Side navigation dots */}
+      <ScrollDots
+        sections={SECTION_LABELS}
+        activeSection={activeSection}
+        onDotClick={(i) => scrollTo(SECTION_IDS[i])}
+      />
+
+      <main>
+        {/* ================================================================
+            HERO
+            ================================================================ */}
+        <section id="hero" className="section hero">
+          <div className="hero__content">
+            <div className="hero__left">
+              <p className="hero__eyebrow reveal">Software Engineer</p>
+              <h1 className="hero__name reveal">
+                <span>Zander</span>
+                <span>Erwin</span>
+              </h1>
+              <p className="hero__bio reveal">
+                Building elegant, high-performing applications at the intersection of engineering and design.
+              </p>
+              <div className="hero__cta reveal">
+                <button className="btn btn--primary" onClick={() => scrollTo('projects')}>
+                  View Work
+                </button>
+                <button className="btn btn--ghost" onClick={() => scrollTo('contact')}>
+                  Get In Touch
+                </button>
+              </div>
+            </div>
+            <div className="hero__right reveal">
+              <OrbitCanvas />
             </div>
           </div>
         </section>
 
-        <section id="projects"  className="projects-section fade-right">
-          <h1>Projects</h1>
-          <div className="projects-tiles">
-            {projects.map((project, index) => (
-              <div className="tile project-tile" key={index} onClick={() => openPopup(project, 'project')}>
-                <h2>{project.title}</h2>
-                <p>{project.description}</p>
-                <div className="tech-stack">
-                  {project.tech.map((tech, idx) => (
-                    <span key={idx}>{tech}</span>
-                  ))}
+        {/* ================================================================
+            ABOUT
+            ================================================================ */}
+        <section id="about" className="section">
+          <div className="section__inner">
+            <div className="section__header reveal">
+              <span className="section__num">01</span>
+              <h2 className="section__title">About Me</h2>
+            </div>
+            <div className="about__grid">
+              <div className="about__photo reveal reveal--left">
+                <div className="photo-frame">
+                  <img src={profileImage} alt="Zander Erwin" />
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
-
-        <section id="experience" className="experience-section fade-left">
-          <h1>Experience</h1>
-          <div className="experience-tiles">
-            {experiences.map((exp, index) => (
-              <div className="tile experience-tile" key={index} onClick={() => openPopup(exp, 'experience')}>
-                <h2>{exp.title}</h2>
-                <h3>{exp.company}</h3>
-                <p>{exp.description}</p>
+              <div className="about__content">
+                <div className="glass-card reveal">
+                  <p className="about__text">
+                    I'm a software developer and Wichita State University student passionate about building
+                    elegant, high-performing applications. My focus lies in bridging complex engineering
+                    challenges with intuitive user experiences.
+                  </p>
+                  <p className="about__text">
+                    Currently interning at Integra Technologies, where I work with enterprise-level PL/SQL,
+                    JavaScript, and Oracle systems. I thrive on solving difficult problems and continuously
+                    expanding what I know.
+                  </p>
+                  <div className="skills">
+                    <p className="skills__label">Technical Stack</p>
+                    <div className="skills__tags">
+                      {['JavaScript', 'React', 'TypeScript', 'Node.js', 'Python', 'C++', 'PL/SQL', 'Oracle Apex'].map(s => (
+                        <span key={s} className="skill-tag">{s}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-            ))}
+            </div>
           </div>
         </section>
 
-        <section id="ideas" className="ideas-section fade-right">
-          <h1>Future Ideas</h1>
-          <div className="ideas-tiles">
-            {ideas.map((idea, index) => (
-              <div className="tile idea-tile" key={index} onClick={() => openPopup(idea, 'idea')}>
-                <h2>{idea.title}</h2>
-                <p>{idea.description}</p>
+        {/* ================================================================
+            PROJECTS
+            ================================================================ */}
+        <section id="projects" className="section">
+          <div className="section__inner">
+            <div className="section__header reveal">
+              <span className="section__num">02</span>
+              <h2 className="section__title">Projects</h2>
+            </div>
+            <div className="projects__split">
+              <div className="projects__list reveal">
+                {PROJECTS.map((proj, i) => (
+                  <button
+                    key={proj.num}
+                    className={`project-item${selectedProject === i ? ' active' : ''}`}
+                    onClick={() => setSelectedProject(i)}
+                  >
+                    <span className="project-item__num">{proj.num}</span>
+                    <span className="project-item__title">{proj.title}</span>
+                  </button>
+                ))}
               </div>
-            ))}
+              <div className="projects__detail reveal reveal--right">
+                <div className="glass-card project-detail" key={selectedProject}>
+                  <h3 className="project-detail__title">{PROJECTS[selectedProject].title}</h3>
+                  <div className="project-detail__techs">
+                    {PROJECTS[selectedProject].techs.map(t => (
+                      <span key={t} className="tech-tag">{t}</span>
+                    ))}
+                  </div>
+                  <p className="project-detail__desc">{PROJECTS[selectedProject].description}</p>
+                  <ul className="project-detail__highlights">
+                    {PROJECTS[selectedProject].highlights.map((h, i) => (
+                      <li key={i}>{h}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section id="contact" className="contact-section fade-left">
-          <h1>Get In Touch</h1>
-          <form onSubmit={handleSubmit} className="contact-form">
-            <div className="form-group">
-              <label htmlFor="name">Name</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                placeholder="Your Name"
-              />
+        {/* ================================================================
+            EXPERIENCE
+            ================================================================ */}
+        <section id="experience" className="section">
+          <div className="section__inner">
+            <div className="section__header reveal">
+              <span className="section__num">03</span>
+              <h2 className="section__title">Experience</h2>
             </div>
-            <div className="form-group">
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                placeholder="your.email@example.com"
-              />
+            <div className="experience__timeline">
+              {EXPERIENCES.map((exp, i) => (
+                <div
+                  key={i}
+                  className="experience-card glass-card reveal"
+                  style={{ transitionDelay: `${i * 0.12}s` }}
+                >
+                  <div className="exp-card__header">
+                    <div>
+                      <h3 className="exp-card__role">{exp.role}</h3>
+                      <p className="exp-card__company">{exp.company}</p>
+                    </div>
+                    <span className="exp-card__period">{exp.period}</span>
+                  </div>
+                  <p className="exp-card__desc">{exp.description}</p>
+                  <ul className="exp-card__list">
+                    {exp.responsibilities.map((r, j) => <li key={j}>{r}</li>)}
+                  </ul>
+                  <div className="exp-card__techs">
+                    {exp.techs.map(t => <span key={t} className="tech-tag">{t}</span>)}
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="form-group">
-              <label htmlFor="message">Message</label>
-              <textarea
-                id="message"
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                required
-                placeholder="Your message here..."
-                rows="5"
-              />
-            </div>
-            <button type="submit" className="submit-btn">Send Message</button>
-          </form>
+          </div>
         </section>
 
+        {/* ================================================================
+            FUTURE IDEAS
+            ================================================================ */}
+        <section id="ideas" className="section">
+          <div className="section__inner">
+            <div className="section__header reveal">
+              <span className="section__num">04</span>
+              <h2 className="section__title">Future Ideas</h2>
+            </div>
+            <div className="ideas__grid">
+              {IDEAS.map((idea, i) => (
+                <div
+                  key={i}
+                  className="idea-card glass-card reveal"
+                  style={{ transitionDelay: `${i * 0.1}s` }}
+                >
+                  <div className="idea-card__header">
+                    <h3 className="idea-card__title">{idea.title}</h3>
+                    <span className="idea-card__timeline">{idea.timeline}</span>
+                  </div>
+                  <p className="idea-card__desc">{idea.description}</p>
+                  <div className="idea-card__features">
+                    {idea.features.map((f, j) => <span key={j} className="feature-tag">{f}</span>)}
+                  </div>
+                  <div className="idea-card__techs">
+                    {idea.techs.map(t => <span key={t} className="tech-tag">{t}</span>)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
+            CONTACT
+            ================================================================ */}
+        <section id="contact" className="section">
+          <div className="section__inner section__inner--narrow">
+            <div className="section__header reveal">
+              <span className="section__num">05</span>
+              <h2 className="section__title">Get In Touch</h2>
+            </div>
+            <div className="reveal">
+              <p className="contact__intro">
+                Have a project in mind, a question, or just want to connect? I'd love to hear from you.
+              </p>
+              <form className="glass-card contact__form" onSubmit={handleSubmit}>
+                <div className="form-row">
+                  <div className="form-field">
+                    <label htmlFor="name">Name</label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={e => setFormData(p => ({ ...p, name: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="email">Email</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={e => setFormData(p => ({ ...p, email: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label htmlFor="message">Message</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={5}
+                    value={formData.message}
+                    onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn btn--primary">Send Message</button>
+                {formStatus === 'success' && (
+                  <p className="form-status success">Message sent! I'll be in touch soon.</p>
+                )}
+                {formStatus === 'error' && (
+                  <p className="form-status error">Something went wrong. Please try again.</p>
+                )}
+              </form>
+            </div>
+          </div>
+        </section>
       </main>
 
-      {selectedItem && (
-        <div className="popup-overlay" onClick={closePopup}>
-          {renderPopupContent()}
-        </div>
-      )}
-
-      <footer>
-        <p>Â© 2025 Zander Erwin</p>
+      <footer className="footer">
+        <p>© {new Date().getFullYear()} Zander Erwin. Built with React.</p>
       </footer>
-      
     </div>
   );
 }
-
-export default App;

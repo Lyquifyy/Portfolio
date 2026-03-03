@@ -1,0 +1,70 @@
+.scroll-dots {
+  position: fixed;
+  right: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.scroll-dot {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.25rem 0;
+  flex-direction: row-reverse;
+}
+
+.scroll-dot__marker {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.25);
+  border: 1.5px solid rgba(148, 163, 184, 0.3);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.scroll-dot__label {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  opacity: 0;
+  transform: translateX(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  white-space: nowrap;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.scroll-dot:hover .scroll-dot__label,
+.scroll-dot--active .scroll-dot__label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-dot--active .scroll-dot__marker {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 8px var(--accent-blue);
+  transform: scale(1.5);
+}
+
+.scroll-dot:hover .scroll-dot__marker {
+  background: rgba(56, 189, 248, 0.4);
+  border-color: rgba(56, 189, 248, 0.5);
+}
+
+@media (max-width: 768px) {
+  .scroll-dots {
+    right: 0.75rem;
+  }
+  .scroll-dot__label {
+    display: none;
+  }
+}
