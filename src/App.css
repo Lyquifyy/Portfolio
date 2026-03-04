@@ -18,7 +18,7 @@ body[data-theme='dark'] {
   --accent-purple-dim: rgba(129, 140, 248, 0.1);
   --glass-bg:          rgba(14, 26, 46, 0.55);
   --glass-border:      rgba(56, 189, 248, 0.12);
-  --glass-blur:        blur(20px);
+  --glass-blur:        blur(14px);
   --dot-color:         rgba(56, 189, 248, 0.1);
   --shadow:            0 8px 32px rgba(0, 0, 0, 0.45);
   --header-bg:         rgba(5, 10, 20, 0.82);
@@ -36,7 +36,7 @@ body[data-theme='light'] {
   --accent-purple-dim: rgba(79, 70, 229, 0.08);
   --glass-bg:          rgba(255, 255, 255, 0.65);
   --glass-border:      rgba(3, 105, 161, 0.15);
-  --glass-blur:        blur(20px);
+  --glass-blur:        blur(14px);
   --dot-color:         rgba(3, 105, 161, 0.09);
   --shadow:            0 8px 32px rgba(0, 0, 0, 0.08);
   --header-bg:         rgba(240, 247, 255, 0.85);
@@ -55,7 +55,7 @@ body:not([data-theme]) {
   --accent-purple-dim: rgba(129, 140, 248, 0.1);
   --glass-bg:          rgba(14, 26, 46, 0.55);
   --glass-border:      rgba(56, 189, 248, 0.12);
-  --glass-blur:        blur(20px);
+  --glass-blur:        blur(14px);
   --dot-color:         rgba(56, 189, 248, 0.1);
   --shadow:            0 8px 32px rgba(0, 0, 0, 0.45);
   --header-bg:         rgba(5, 10, 20, 0.82);
@@ -110,6 +110,8 @@ body {
   background-size: 32px 32px;
   pointer-events: none;
   z-index: 0;
+  will-change: auto;
+  contain: strict;
 }
 
 .grain-overlay {
@@ -123,6 +125,7 @@ body {
   opacity: 0.025;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   animation: grain-shift 8s steps(10) infinite;
+  will-change: transform;
 }
 
 @keyframes grain-shift {
@@ -439,6 +442,8 @@ body {
   height: 480px;
   position: relative;
   transition-delay: 0.15s;
+  contain: layout style;
+  will-change: opacity, transform;
 }
 
 /* --------------------------------------------------------------------------

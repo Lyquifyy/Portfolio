@@ -73,21 +73,87 @@ const PROJECTS = [
       'Progress tracking and history',
     ],
   },
+  {
+    num: '06',
+    title: 'NutriForge',
+    techs: ['React Native', 'TypeScript', 'Expo', 'AI/ML'],
+    description:
+      'An AI-powered mobile nutrition app that bridges the gap between knowing your macro targets and actually executing on them. Handles the full nutrition pipeline — from smart meal recommendations to budget-aware planning — in one adaptive experience.',
+    highlights: [
+      'AI-driven macro targeting and meal suggestions',
+      'Budget and preference-aware meal planning',
+      'End-to-end nutrition pipeline in a single app',
+      'Cross-platform mobile with React Native + Expo',
+    ],
+  },
+  {
+    num: '07',
+    title: 'Fitness Streak App',
+    techs: ['TypeScript', 'React Native', 'Firebase'],
+    description:
+      'A gamified fitness mobile app designed to build consistent workout habits through streaks, achievements, and social features. Tracks progress and motivates users with a reward-driven system.',
+    highlights: [
+      'Streak and achievement reward system',
+      'Social challenges and friend leaderboards',
+      'Firebase real-time backend',
+      'Cross-platform TypeScript/React Native build',
+    ],
+  },
+  {
+    num: '08',
+    title: 'Car Maintenance Tracker',
+    techs: ['TypeScript', 'React'],
+    description:
+      'A TypeScript web application for tracking vehicle maintenance records, service history, and upcoming service reminders. Helps users stay on top of routine upkeep across multiple vehicles.',
+    highlights: [
+      'Full service history log per vehicle',
+      'Upcoming maintenance reminders',
+      'Multi-vehicle support',
+      'TypeScript + React frontend',
+    ],
+  },
+  {
+    num: '09',
+    title: 'Traffic Simulation Dashboard',
+    techs: ['Python', 'Flask', 'SUMO', 'Jupyter', 'Docker'],
+    description:
+      'Senior capstone research project integrating EPA vehicle emissions data (2008–2025) with SUMO traffic simulation to model and visualize urban traffic emissions. Includes a Flask web dashboard and a MATLAB vehicle classification model.',
+    highlights: [
+      'SUMO traffic simulation with real emission modeling',
+      'EPA dataset pipeline covering 2008–2025 vehicle data',
+      'Flask dashboard for live traffic and emissions visualization',
+      'Dockerized dev environment with CARLA integration',
+    ],
+  },
 ];
 
 const EXPERIENCES = [
   {
+    role: 'Software Engineer Co-op',
+    company: 'Flint Hills Resources (Koch Industries)',
+    period: 'Present',
+    techs: ['C#', '.NET', 'Visual Basic', 'WinForms'],
+    description:
+      'Developing and maintaining internal .NET applications for a leading petroleum refining company and subsidiary of Koch Industries.',
+    responsibilities: [
+      'Build and maintain enterprise applications in C# and Visual Basic on the .NET platform',
+      'Work across the full application lifecycle from feature development to deployment',
+      'Collaborate with cross-functional teams to gather requirements and deliver software solutions',
+      'Debug and resolve issues in legacy Visual Basic codebases',
+    ],
+  },
+  {
     role: 'Software Engineer Intern',
     company: 'Integra Technologies',
-    period: 'March 2024 – Present',
+    period: 'March 2024 – 2025',
     techs: ['PL/SQL', 'JavaScript', 'Oracle Apex', 'Oracle Forms'],
     description:
-      'Building and maintaining enterprise software solutions for a leading semiconductor services company.',
+      'Built and maintained enterprise software solutions for a leading semiconductor services company.',
     responsibilities: [
-      'Handle 10–15 IT requests per week across multiple internal systems',
-      'Develop UI improvements in Oracle Apex and Oracle Forms',
-      'Write and optimize PL/SQL queries for backend database operations',
-      'Collaborate with senior engineers on system architecture improvements',
+      'Handled 10–15 IT requests per week across multiple internal systems',
+      'Developed UI improvements in Oracle Apex and Oracle Forms',
+      'Wrote and optimized PL/SQL queries for backend database operations',
+      'Collaborated with senior engineers on system architecture improvements',
     ],
   },
   {
@@ -296,14 +362,14 @@ export default function App() {
                     challenges with intuitive user experiences.
                   </p>
                   <p className="about__text">
-                    Currently interning at Integra Technologies, where I work with enterprise-level PL/SQL,
-                    JavaScript, and Oracle systems. I thrive on solving difficult problems and continuously
-                    expanding what I know.
+                    Currently a Software Engineer Co-op at Flint Hills Resources (Koch Industries), where I
+                    build and maintain enterprise .NET applications in C# and Visual Basic. I thrive on solving
+                    difficult problems and continuously expanding what I know.
                   </p>
                   <div className="skills">
                     <p className="skills__label">Technical Stack</p>
                     <div className="skills__tags">
-                      {['JavaScript', 'React', 'TypeScript', 'Node.js', 'Python', 'C++', 'PL/SQL', 'Oracle Apex'].map(s => (
+                      {['JavaScript', 'React', 'TypeScript', 'Node.js', 'C#', '.NET', 'Python', 'C++', 'PL/SQL'].map(s => (
                         <span key={s} className="skill-tag">{s}</span>
                       ))}
                     </div>
