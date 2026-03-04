@@ -1,34 +1,23 @@
-:root {
-  /* Light theme fallbacks */
-  --bg-light: #ffffff;
-  --fg-light: #111111;
-  --header-light: #aaaaaa;
-
-  /* Dark theme fallbacks */
-  --bg-dark: #121212;
-  --fg-dark: #f0f0f0;
-  --header-dark: #222222;
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.38rem 0.9rem;
+  border-radius: 6px;
+  border: 1px solid var(--glass-border);
+  background: transparent;
+  color: var(--fg-secondary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  font-family: inherit;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
 }
 
-/* Map the “active” variables based on data-theme */
-[data-theme="light"] {
-  --bg: var(--bg-light);
-  --fg: var(--fg-light);
-  --header-bg: var(--header-light);
-}
-
-[data-theme="dark"] {
-  --bg: var(--bg-dark);
-  --fg: var(--fg-dark);
-  --header-bg: var(--header-dark);
-}
-.theme-switch{
-    background-color: transparent;
-    border: none;
-    color: var(--fg);
-    font-size: 16px;
-    cursor: pointer;
-    padding: 10px;
-    transition: color 0.5s ease;
-    font-weight: 500;
+.theme-switch:hover {
+  background: var(--accent-blue-dim);
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
 }
