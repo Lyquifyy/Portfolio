@@ -6,8 +6,8 @@ import { ThemeSwitch } from './components/ThemeSwitch';
 import OrbitCanvas from './components/OrbitCanvas';
 import ScrollDots from './components/ScrollDots';
 
-const SECTION_IDS    = ['hero', 'about', 'projects', 'experience', 'ideas', 'contact'];
-const SECTION_LABELS = ['Home', 'About', 'Projects', 'Experience', 'Ideas', 'Contact'];
+const SECTION_IDS    = ['hero', 'about', 'projects', 'experience', 'resumes', 'ideas', 'contact'];
+const SECTION_LABELS = ['Home', 'About', 'Projects', 'Experience', 'Resumes', 'Ideas', 'Contact'];
 
 const PROJECTS = [
   {
@@ -168,6 +168,33 @@ const EXPERIENCES = [
       'Documented testing data and compiled detailed research reports',
       'Assisted faculty researchers with experimental setup and analysis',
       'Maintained accurate records for compliance and research continuity',
+    ],
+  },
+];
+
+const RESUMES = [
+  {
+    title: 'Software Engineering',
+    file: '/Portfolio/resumes/Zander_Erwin_Software_Resume.pdf',
+    description:
+      'Tailored for software engineering and development roles. Highlights full-stack experience, enterprise .NET development at Koch Industries, and projects spanning React, TypeScript, Python, and C++.',
+    highlights: [
+      'Full-stack development experience',
+      'Enterprise .NET & C# at Flint Hills Resources',
+      'React, TypeScript, and Python projects',
+      'Cross-platform mobile development',
+    ],
+  },
+  {
+    title: 'Cyber Security',
+    file: '/Portfolio/resumes/Zander_Erwin_Cyber_Resume.pdf',
+    description:
+      'Focused on cybersecurity roles and security engineering. Features hands-on competition experience, network security fundamentals, and a security-minded approach to software development.',
+    highlights: [
+      'Top 300 in NCL (National Cyber League) Team Game',
+      'Security-focused software development',
+      'Network and system security fundamentals',
+      'Capture the flag competition experience',
     ],
   },
 ];
@@ -459,12 +486,53 @@ export default function App() {
         </section>
 
         {/* ================================================================
+            RESUMES
+            ================================================================ */}
+        <section id="resumes" className="section">
+          <div className="section__inner">
+            <div className="section__header reveal">
+              <span className="section__num">04</span>
+              <h2 className="section__title">Resumes</h2>
+            </div>
+            <p className="resumes__intro reveal">
+              Download a resume tailored to the role you're hiring for.
+            </p>
+            <div className="resumes__grid">
+              {RESUMES.map((resume, i) => (
+                <div
+                  key={i}
+                  className="resume-card glass-card reveal"
+                  style={{ transitionDelay: `${i * 0.12}s` }}
+                >
+                  <div className="resume-card__header">
+                    <h3 className="resume-card__title">{resume.title}</h3>
+                  </div>
+                  <p className="resume-card__desc">{resume.description}</p>
+                  <ul className="resume-card__highlights">
+                    {resume.highlights.map((h, j) => (
+                      <li key={j}>{h}</li>
+                    ))}
+                  </ul>
+                  <a
+                    href={resume.file}
+                    download
+                    className="btn btn--primary resume-card__download"
+                  >
+                    Download PDF
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
             FUTURE IDEAS
             ================================================================ */}
         <section id="ideas" className="section">
           <div className="section__inner">
             <div className="section__header reveal">
-              <span className="section__num">04</span>
+              <span className="section__num">05</span>
               <h2 className="section__title">Future Ideas</h2>
             </div>
             <div className="ideas__grid">
@@ -497,7 +565,7 @@ export default function App() {
         <section id="contact" className="section">
           <div className="section__inner section__inner--narrow">
             <div className="section__header reveal">
-              <span className="section__num">05</span>
+              <span className="section__num">06</span>
               <h2 className="section__title">Get In Touch</h2>
             </div>
             <div className="reveal">
