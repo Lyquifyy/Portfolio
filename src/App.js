@@ -6,8 +6,8 @@ import { ThemeSwitch } from './components/ThemeSwitch';
 import OrbitCanvas from './components/OrbitCanvas';
 import ScrollDots from './components/ScrollDots';
 
-const SECTION_IDS    = ['hero', 'about', 'projects', 'experience', 'resumes', 'ideas', 'contact'];
-const SECTION_LABELS = ['Home', 'About', 'Projects', 'Experience', 'Resumes', 'Ideas', 'Contact'];
+const SECTION_IDS    = ['hero', 'about', 'projects', 'experience', 'cyber', 'resumes', 'ideas', 'contact'];
+const SECTION_LABELS = ['Home', 'About', 'Projects', 'Experience', 'Cyber Labs', 'Resumes', 'Ideas', 'Contact'];
 
 const PROJECTS = [
   {
@@ -234,6 +234,61 @@ const IDEAS = [
   },
 ];
 
+const CYBER_PROJECTS = [
+  {
+    title: 'Home Lab Environment',
+    category: 'Infrastructure',
+    techs: ['Kali Linux', 'VirtualBox', 'pfSense', 'Splunk'],
+    description:
+      'A virtualized security lab for practicing offensive and defensive techniques. Includes segmented networks, vulnerable VMs, and a centralized SIEM for log analysis and threat detection.',
+    highlights: [
+      'Multi-VM network with VLAN segmentation',
+      'Splunk SIEM for centralized log monitoring',
+      'Vulnerable targets (DVWA, Metasploitable, HackTheBox)',
+      'pfSense firewall with IDS/IPS rules',
+    ],
+  },
+  {
+    title: 'National Cyber League (NCL)',
+    category: 'CTF Competition',
+    techs: ['Wireshark', 'Burp Suite', 'John the Ripper', 'Autopsy'],
+    description:
+      'Competed in the National Cyber League individual and team games, placing in the top 300 nationally in the Team Game. Solved challenges spanning cryptography, log analysis, OSINT, forensics, and web exploitation.',
+    highlights: [
+      'Top 300 nationally in NCL Team Game',
+      'Cryptography and password cracking challenges',
+      'Network traffic analysis with Wireshark',
+      'Web app exploitation and OSINT reconnaissance',
+    ],
+  },
+  {
+    title: 'Network Traffic Analysis',
+    category: 'Blue Team',
+    techs: ['Wireshark', 'tcpdump', 'Zeek', 'Python'],
+    description:
+      'Captured and analyzed network traffic to identify malicious patterns, anomalous behavior, and indicators of compromise. Built Python scripts to automate PCAP parsing and alert generation.',
+    highlights: [
+      'PCAP analysis for threat hunting',
+      'Custom Python scripts for automated detection',
+      'Protocol dissection and anomaly identification',
+      'Incident report generation from captures',
+    ],
+  },
+  {
+    title: 'Vulnerability Assessment Lab',
+    category: 'Red Team',
+    techs: ['Nmap', 'Metasploit', 'Burp Suite', 'Nikto'],
+    description:
+      'Conducted vulnerability assessments against intentionally vulnerable applications and machines. Practiced the full penetration testing lifecycle from reconnaissance through exploitation and reporting.',
+    highlights: [
+      'Nmap scanning and service enumeration',
+      'Metasploit exploitation of known CVEs',
+      'Web app testing with Burp Suite and Nikto',
+      'Structured penetration test reporting',
+    ],
+  },
+];
+
 export default function App() {
   const [introFading,     setIntroFading]     = useState(false);
   const [introVisible,    setIntroVisible]    = useState(true);
@@ -401,6 +456,14 @@ export default function App() {
                       ))}
                     </div>
                   </div>
+                  <div className="skills">
+                    <p className="skills__label">Security Tools</p>
+                    <div className="skills__tags">
+                      {['Wireshark', 'Burp Suite', 'Nmap', 'Metasploit', 'Kali Linux', 'Splunk', 'John the Ripper', 'Autopsy'].map(s => (
+                        <span key={s} className="skill-tag skill-tag--cyber">{s}</span>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -486,12 +549,50 @@ export default function App() {
         </section>
 
         {/* ================================================================
+            CYBER PROJECTS / LABS
+            ================================================================ */}
+        <section id="cyber" className="section">
+          <div className="section__inner">
+            <div className="section__header reveal">
+              <span className="section__num">04</span>
+              <h2 className="section__title">Cyber Labs</h2>
+            </div>
+            <p className="cyber__intro reveal">
+              Hands-on security projects, CTF competitions, and lab environments where I sharpen offensive and defensive skills.
+            </p>
+            <div className="cyber__grid">
+              {CYBER_PROJECTS.map((proj, i) => (
+                <div
+                  key={i}
+                  className="cyber-card glass-card reveal"
+                  style={{ transitionDelay: `${i * 0.1}s` }}
+                >
+                  <div className="cyber-card__header">
+                    <h3 className="cyber-card__title">{proj.title}</h3>
+                    <span className="cyber-card__category">{proj.category}</span>
+                  </div>
+                  <p className="cyber-card__desc">{proj.description}</p>
+                  <ul className="cyber-card__highlights">
+                    {proj.highlights.map((h, j) => (
+                      <li key={j}>{h}</li>
+                    ))}
+                  </ul>
+                  <div className="cyber-card__techs">
+                    {proj.techs.map(t => <span key={t} className="tech-tag">{t}</span>)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ================================================================
             RESUMES
             ================================================================ */}
         <section id="resumes" className="section">
           <div className="section__inner">
             <div className="section__header reveal">
-              <span className="section__num">04</span>
+              <span className="section__num">05</span>
               <h2 className="section__title">Resumes</h2>
             </div>
             <p className="resumes__intro reveal">
@@ -532,7 +633,7 @@ export default function App() {
         <section id="ideas" className="section">
           <div className="section__inner">
             <div className="section__header reveal">
-              <span className="section__num">05</span>
+              <span className="section__num">06</span>
               <h2 className="section__title">Future Ideas</h2>
             </div>
             <div className="ideas__grid">
@@ -565,7 +666,7 @@ export default function App() {
         <section id="contact" className="section">
           <div className="section__inner section__inner--narrow">
             <div className="section__header reveal">
-              <span className="section__num">06</span>
+              <span className="section__num">07</span>
               <h2 className="section__title">Get In Touch</h2>
             </div>
             <div className="reveal">
