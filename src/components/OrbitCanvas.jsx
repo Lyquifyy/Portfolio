@@ -1,16 +1,22 @@
 import { useRef, useEffect } from 'react';
 
 const SKILLS = [
-  // inner ring
+  // inner ring — core languages
   { name: 'React',      color: '#38bdf8', rgb: '56,189,248'  },
   { name: 'TypeScript', color: '#818cf8', rgb: '129,140,248' },
   { name: 'JavaScript', color: '#fbbf24', rgb: '251,191,36'  },
   { name: 'C#',         color: '#ae7bff', rgb: '174,123,255' },
-  // outer ring
+  // middle ring — frameworks & languages
   { name: '.NET',       color: '#7c6fff', rgb: '124,111,255' },
   { name: 'Python',     color: '#34d399', rgb: '52,211,153'  },
   { name: 'Node.js',    color: '#4ade80', rgb: '74,222,128'  },
   { name: 'C++',        color: '#f472b6', rgb: '244,114,182' },
+  // outer ring — security tools
+  { name: 'Wireshark',  color: '#06b6d4', rgb: '6,182,212'   },
+  { name: 'Burp Suite', color: '#f97316', rgb: '249,115,22'  },
+  { name: 'Nmap',       color: '#a78bfa', rgb: '167,139,250' },
+  { name: 'Splunk',     color: '#22d3ee', rgb: '34,211,238'  },
+  { name: 'Kali Linux', color: '#e879f9', rgb: '232,121,249' },
 ];
 
 function getTheme() {
@@ -45,8 +51,9 @@ export default function OrbitCanvas() {
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
 
-    const inner = SKILLS.slice(0, 4);
-    const outer = SKILLS.slice(4);
+    const inner  = SKILLS.slice(0, 4);
+    const middle = SKILLS.slice(4, 8);
+    const outer  = SKILLS.slice(8);
     let angle = 0;
 
     function drawRing(radius, opacity, isDark) {
@@ -113,11 +120,13 @@ export default function OrbitCanvas() {
 
       const isDark  = getTheme() === 'dark';
       const minDim  = Math.min(width, height);
-      const r1      = minDim * 0.28;
-      const r2      = minDim * 0.43;
+      const r1      = minDim * 0.2;
+      const r2      = minDim * 0.33;
+      const r3      = minDim * 0.46;
 
       drawRing(r1, isDark ? 0.12 : 0.35, isDark);
-      drawRing(r2, isDark ? 0.08 : 0.22, isDark);
+      drawRing(r2, isDark ? 0.1  : 0.28, isDark);
+      drawRing(r3, isDark ? 0.06 : 0.18, isDark);
 
       // Center glow
       const glowRgb   = isDark ? '56,189,248' : '3,105,161';
@@ -145,13 +154,22 @@ export default function OrbitCanvas() {
         drawLabel(x, y, skill.name, 20, isDark);
       });
 
-      // Outer orbit (counter-clockwise, slower)
-      outer.forEach((skill, i) => {
-        const a = -angle * 0.65 + (i * Math.PI * 2) / outer.length + Math.PI / outer.length;
+      // Middle orbit (counter-clockwise, slower)
+      middle.forEach((skill, i) => {
+        const a = -angle * 0.65 + (i * Math.PI * 2) / middle.length + Math.PI / middle.length;
         const x = cx + Math.cos(a) * r2;
         const y = cy + Math.sin(a) * r2;
         drawOrb(x, y, skill, 4);
         drawLabel(x, y, skill.name, 17, isDark);
+      });
+
+      // Outer orbit — security tools (clockwise, slowest)
+      outer.forEach((skill, i) => {
+        const a = angle * 0.4 + (i * Math.PI * 2) / outer.length;
+        const x = cx + Math.cos(a) * r3;
+        const y = cy + Math.sin(a) * r3;
+        drawOrb(x, y, skill, 3.5);
+        drawLabel(x, y, skill.name, 15, isDark);
       });
 
       // Speed consistent regardless of fps (0.005 rad/frame at 60fps baseline)

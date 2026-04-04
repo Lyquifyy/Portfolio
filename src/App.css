@@ -531,6 +531,17 @@ body {
   transform: translateY(-1px);
 }
 
+.skill-tag--cyber {
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.1);
+  border-color: rgba(6, 182, 212, 0.2);
+}
+
+.skill-tag--cyber:hover {
+  background: rgba(6, 182, 212, 0.18);
+  border-color: #06b6d4;
+}
+
 .tech-tag {
   color: var(--accent-purple);
   background: var(--accent-purple-dim);
@@ -752,7 +763,172 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   16. FUTURE IDEAS
+   16. RESUMES
+   -------------------------------------------------------------------------- */
+
+.resumes__intro {
+  color: var(--fg-secondary);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin-bottom: 2rem;
+}
+
+.resumes__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.resume-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.resume-card__header {
+  margin-bottom: 0.75rem;
+}
+
+.resume-card__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg-primary);
+}
+
+.resume-card__desc {
+  color: var(--fg-secondary);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.resume-card__highlights {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1.5rem;
+}
+
+.resume-card__highlights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--fg-secondary);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.resume-card__highlights li::before {
+  content: '→';
+  color: var(--accent-blue);
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  margin-top: 0.18rem;
+}
+
+.resume-card__download {
+  align-self: flex-start;
+  text-decoration: none;
+  font-size: 0.85rem;
+  padding: 0.65rem 1.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   17. CYBER LABS
+   -------------------------------------------------------------------------- */
+
+.cyber__intro {
+  color: var(--fg-secondary);
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin-bottom: 2rem;
+}
+
+.cyber__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.cyber-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.cyber-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cyber-card__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--fg-primary);
+  line-height: 1.3;
+}
+
+.cyber-card__category {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #06b6d4;
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+  padding: 0.2rem 0.6rem;
+  border-radius: 100px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cyber-card__desc {
+  color: var(--fg-secondary);
+  font-size: 0.875rem;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+  flex: 1;
+}
+
+.cyber-card__highlights {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.cyber-card__highlights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  color: var(--fg-secondary);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.cyber-card__highlights li::before {
+  content: '>';
+  color: #06b6d4;
+  flex-shrink: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: monospace;
+  margin-top: 0.18rem;
+}
+
+.cyber-card__techs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* --------------------------------------------------------------------------
+   18. FUTURE IDEAS
    -------------------------------------------------------------------------- */
 
 .ideas__grid {
@@ -943,7 +1119,15 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .cyber__grid {
+    grid-template-columns: 1fr;
+  }
+
   .ideas__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resumes__grid {
     grid-template-columns: 1fr;
   }
 }
