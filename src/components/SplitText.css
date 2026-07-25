@@ -1,0 +1,20 @@
+.split-text {
+  display: inline-block;
+  /* Children rotate on X — without depth the reveal reads as a plain fade. */
+  perspective: 800px;
+}
+
+.split-text__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.split-text__char {
+  display: inline-block;
+  transform-origin: 50% 100%;
+  will-change: transform, opacity;
+}
+
+.split-text__space {
+  display: inline-block;
+}

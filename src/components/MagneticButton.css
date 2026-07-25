@@ -1,0 +1,14 @@
+.magnetic {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.magnetic__label {
+  position: relative;
+  z-index: 1;
+}

@@ -1,74 +1,89 @@
 .scroll-dots {
   position: fixed;
-  right: 2rem;
+  right: 1.75rem;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 100;
+  z-index: 90;
   display: flex;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: 0.9rem;
   align-items: flex-end;
 }
 
-/* Fixed-width button — only the marker occupies layout space */
+/* Fixed width so only the marker occupies layout space — the label floats. */
 .scroll-dot {
-  background: none;
-  border: none;
-  cursor: pointer;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  padding: 0.25rem 0;
-  width: 20px;
+  padding: 0.2rem 0;
+  width: 18px;
 }
 
 .scroll-dot__marker {
+  position: relative;
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: rgba(148, 163, 184, 0.25);
-  border: 1.5px solid rgba(148, 163, 184, 0.3);
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.18);
+  transition: background 0.3s var(--ease-out);
   flex-shrink: 0;
 }
 
-/* Label floats to the left — absolutely positioned so it never shifts the marker */
+.scroll-dot:hover .scroll-dot__marker {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* The single shared indicator that slides between dots. */
+.scroll-dot__halo {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--accent-alt);
+  box-shadow: 0 0 14px 1px rgba(var(--aurora-teal-rgb), 0.8);
+}
+
+.scroll-dot--active .scroll-dot__marker {
+  background: transparent;
+}
+
 .scroll-dot__label {
   position: absolute;
-  right: calc(7px + 0.875rem);
+  right: calc(7px + 0.9rem);
   top: 50%;
   transform: translateY(-50%) translateX(6px);
-  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
   font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--fg-secondary);
   opacity: 0;
-  transition: opacity 0.2s ease, transform 0.2s ease;
   white-space: nowrap;
-  font-family: 'Inter', sans-serif;
-  letter-spacing: 0.02em;
   pointer-events: none;
+  transition: opacity 0.24s var(--ease-out), transform 0.24s var(--ease-out);
+  /* Backdrop chip: the pinned Cyber Labs track slides underneath these
+     labels, so they cannot rely on empty space behind them. */
+  padding: 0.22rem 0.55rem;
+  border-radius: var(--r-sm);
+  background: rgba(10, 10, 15, 0.82);
+  border: 1px solid var(--line-subtle);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .scroll-dot:hover .scroll-dot__label,
+.scroll-dot:focus-visible .scroll-dot__label,
 .scroll-dot--active .scroll-dot__label {
   opacity: 1;
   transform: translateY(-50%) translateX(0);
 }
 
-.scroll-dot--active .scroll-dot__marker {
-  background: var(--accent-blue);
-  border-color: var(--accent-blue);
-  box-shadow: 0 0 8px var(--accent-blue);
-  transform: scale(1.5);
+.scroll-dot--active .scroll-dot__label {
+  color: var(--fg-primary);
 }
 
-.scroll-dot:hover .scroll-dot__marker {
-  background: rgba(56, 189, 248, 0.4);
-  border-color: rgba(56, 189, 248, 0.5);
-}
-
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .scroll-dots {
     right: 0.75rem;
   }

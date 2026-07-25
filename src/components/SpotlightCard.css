@@ -1,0 +1,48 @@
+.spotlight-card {
+  position: relative;
+  display: block;
+  padding: 2rem;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  border: 1px solid var(--line-subtle);
+  box-shadow: var(--shadow-lift);
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transition: border-color 0.35s var(--ease-out), background 0.35s var(--ease-out);
+}
+
+.spotlight-card:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-hi);
+}
+
+/* Cursor-tracked bloom. Positioned from CSS custom properties driven by
+   motion values, so tracking never triggers a React render. */
+.spotlight-card__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s var(--ease-out);
+  background: radial-gradient(
+    340px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(var(--accent-rgb), 0.16),
+    transparent 66%
+  );
+}
+
+.spotlight-card:hover .spotlight-card__glow {
+  opacity: 1;
+}
+
+.spotlight-card__content {
+  position: relative;
+  display: block;
+  transform: translateZ(1px);
+}
+
+@media (max-width: 640px) {
+  .spotlight-card {
+    padding: 1.5rem;
+  }
+}

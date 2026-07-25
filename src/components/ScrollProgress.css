@@ -1,0 +1,29 @@
+.scroll-progress {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  z-index: 90;
+  background: var(--line-subtle);
+  pointer-events: none;
+}
+
+.scroll-progress__bar {
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 0%;
+  background: linear-gradient(
+    180deg,
+    var(--aurora-violet) 0%,
+    var(--aurora-fuchsia) 45%,
+    var(--aurora-teal) 100%
+  );
+  box-shadow: 0 0 12px rgba(var(--accent-rgb), 0.6);
+}
+
+@media (max-width: 640px) {
+  .scroll-progress {
+    width: 1px;
+  }
+}

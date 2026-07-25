@@ -1,17 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+
+/* Self-hosted variable fonts. Bundling them removes a render-blocking
+   cross-origin request to Google Fonts and guarantees the type renders even
+   when that host is unreachable. */
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+
+import './styles/tokens.css';
+import './styles/base.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { ThemeProvider } from './context/ThemeContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <ThemeProvider>
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  </ThemeProvider>
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function

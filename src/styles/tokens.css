@@ -1,0 +1,78 @@
+/* ==========================================================================
+   DESIGN TOKENS — KINETIC AURORA
+   Dark only. No theme switching: the design is art-directed for one mode.
+   ========================================================================== */
+
+:root {
+  /* Base — deep neutral, very slightly cool */
+  --bg-base:      #0a0a0f;
+  --bg-raised:    #101017;
+  --bg-overlay:   rgba(255, 255, 255, 0.028);
+
+  /* Aurora stops — drive both the WebGL shader and the CSS fallback */
+  --aurora-violet:  #7c3aed;
+  --aurora-indigo:  #4f46e5;
+  --aurora-teal:    #14b8a6;
+  --aurora-fuchsia: #d946ef;
+  --aurora-cyan:    #22d3ee;
+
+  /* Same stops as raw channels, for rgba() composition */
+  --aurora-violet-rgb:  124, 58, 237;
+  --aurora-indigo-rgb:  79, 70, 229;
+  --aurora-teal-rgb:    20, 184, 166;
+  --aurora-fuchsia-rgb: 217, 70, 239;
+  --aurora-cyan-rgb:    34, 211, 238;
+
+  /* Foreground */
+  --fg-primary:   #f4f4f5;
+  --fg-secondary: #a1a1aa;
+  --fg-muted:     #6b6b76;
+
+  /* Lines & surfaces */
+  --line-subtle:  rgba(255, 255, 255, 0.06);
+  --line-strong:  rgba(255, 255, 255, 0.12);
+  --surface:      rgba(255, 255, 255, 0.024);
+  --surface-hi:   rgba(255, 255, 255, 0.05);
+
+  /* Semantic */
+  --accent:       var(--aurora-violet);
+  --accent-rgb:   var(--aurora-violet-rgb);
+  --accent-alt:   var(--aurora-teal);
+  --cyber:        var(--aurora-cyan);
+  --cyber-rgb:    var(--aurora-cyan-rgb);
+  --success:      #34d399;
+  --danger:       #fb7185;
+
+  /* Radii */
+  --r-sm:   8px;
+  --r-md:  14px;
+  --r-lg:  22px;
+  --r-pill: 999px;
+
+  /* Elevation */
+  --shadow-lift: 0 18px 50px -12px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 40px -8px rgba(var(--accent-rgb), 0.45);
+
+  /* Motion */
+  --ease-out:   cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-inout: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Type */
+  /* Bundled via @fontsource-variable/* in src/index.js — the faces register
+     under their "Variable" names. */
+  --font-sans: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Layout */
+  --page-max:   1180px;
+  --page-pad:   2.5rem;
+  --header-h:   4.25rem;
+
+  color-scheme: dark;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --page-pad: 1.25rem;
+  }
+}
