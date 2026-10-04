@@ -5,8 +5,15 @@ import './ThemeSwitch.css';
 export function ThemeSwitch() {
   const { dark, setDark } = useContext(ThemeContext);
   return (
-    <button onClick={() => setDark(!dark)} className="theme-switch">
-      {dark ? 'Light Mode' : 'Dark Mode'}
+    <button
+      type="button"
+      onClick={() => setDark(!dark)}
+      className="theme-switch"
+      aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+      title={dark ? 'Light' : 'Dark'}
+    >
+      <span className="theme-switch__dot" aria-hidden="true" />
+      <span className="theme-switch__label">{dark ? 'Light' : 'Dark'}</span>
     </button>
   );
 }
