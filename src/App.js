@@ -211,7 +211,7 @@ export default function App() {
                 <div><dt>Now</dt><dd>{PROFILE.status}</dd></div>
                 <div><dt>Based</dt><dd>{PROFILE.based}</dd></div>
                 <div><dt>Education</dt><dd>{PROFILE.education[0].degree}, {PROFILE.education[0].school}, {PROFILE.education[0].period.split(' – ')[1]}</dd></div>
-                <div><dt>Shipping</dt><dd>DineSense · Nova</dd></div>
+                <div><dt>Shipping</dt><dd>DineSense</dd></div>
               </dl>
               <div className="hero__actions reveal">
                 <button type="button" className="btn btn--solid" onClick={() => scrollTo('projects')}>Read the work</button>

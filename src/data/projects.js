@@ -21,16 +21,15 @@ export const PROJECTS = [
   },
   {
     id: 'nova',
-    featured: true,
     title: 'Nova',
     tagline: 'A fitness RPG. Lift, level up, join a guild.',
     year: '2025 – 2026',
-    status: 'In development',
+    status: 'Shelved',
     kind: 'Mobile app + marketing site',
     techs: ['React Native', 'Expo', 'Supabase', 'TypeScript', 'Next.js'],
     repo: 'https://github.com/Lyquifyy/Nova-Gamified-Fitness-Website',
     description:
-      'Nova turns training into character progression: XP, gear unlocks, and four workout paths. Grand Trials are competitive events with photo-verified anti-cheat, solo and guild formats, and leaderboard ranking. I lead full-stack development.',
+      'Nova turns training into character progression: XP, gear unlocks, and four workout paths. Grand Trials are competitive events with photo-verified anti-cheat, solo and guild formats, and leaderboard ranking. I led full-stack development.',
     highlights: [
       'Supabase backend with Edge Functions and a badge/achievement schema',
       'Titles system: 35 entries across six rarity tiers',
@@ -56,6 +55,7 @@ export const PROJECTS = [
   },
   {
     id: 'expense-tracker',
+    featured: true,
     title: 'ExpenseTracker',
     tagline: 'A clean-architecture .NET 8 API with a React 19 client.',
     year: '2026',
