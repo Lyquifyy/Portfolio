@@ -6,7 +6,7 @@ export const PROFILE = {
   email: 'zandererwin2023@gmail.com',
   github: 'https://github.com/Lyquifyy',
   githubUser: 'Lyquifyy',
-  linkedin: 'https://linkedin.com/in/zander-erwin',
+  linkedin: 'https://www.linkedin.com/in/zander-erwin-79b376271',
   status: 'Automation & Integration Developer at PEC',
   thesis:
     'I build the unglamorous parts well: integrations that replace manual work, enterprise .NET that people lean on every day, mobile apps with real backends, and a homelab I keep secure because I want to know how things break.',
