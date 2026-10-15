@@ -38,12 +38,12 @@ test('renders the masthead and chapters', () => {
 
 test('renders one card per project and every résumé download', () => {
   renderApp();
-  expect(document.querySelectorAll('.sheet')).toHaveLength(9);
+  expect(document.querySelectorAll('.sheet')).toHaveLength(12);
   expect(screen.getAllByRole('link', { name: /download pdf/i })).toHaveLength(2);
   expect(screen.getByRole('button', { name: /search/i })).toBeInTheDocument();
 });
 
 test('the canvas degrades when the context is unavailable', () => {
   renderApp();
-  expect(screen.getByRole('img', { name: /massing model/i })).toBeInTheDocument();
+  expect(screen.getByRole('img', { name: /dumbbell/i })).toBeInTheDocument();
 });

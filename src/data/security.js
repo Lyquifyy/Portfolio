@@ -21,6 +21,7 @@ export const SECURITY = [
     highlights: [
       'Persistent storage with NFS exports and automated mounts',
       'Secure remote access over a mesh VPN with no exposed ports',
+      'Sentinel, a Rust desktop app, is being built to watch it',
     ],
   },
   {

@@ -10,7 +10,6 @@ import ChapterRail from './components/ChapterRail';
 import CommandPalette from './components/CommandPalette';
 import GitHubLive from './components/GitHubLive';
 
-import Cursor from './fx/Cursor';
 import Wireframe from './fx/Wireframe';
 import Terminal from './fx/Terminal';
 import SheetRail from './fx/SheetRail';
@@ -184,8 +183,6 @@ export default function App() {
   return (
     <div className="app">
       <a className="skip" href="#profile">Skip to content</a>
-
-      <Cursor />
 
       {/* ------------------------------------------------ Masthead bar */}
       <header className="masthead">

@@ -38,6 +38,47 @@ export const PROJECTS = [
     ],
   },
   {
+    id: 'programmed',
+    featured: true,
+    title: 'Programmed',
+    tagline: 'Your coach\'s program, your log, and your food in one place.',
+    year: '2026',
+    status: 'In development',
+    kind: 'Native iOS app',
+    techs: ['Swift 6', 'SwiftUI', 'SwiftData', 'HealthKit', 'Supabase', 'App Intents'],
+    description:
+      'A training and nutrition app built around the coach relationship. Athletes run a program, log sets with a rest timer that lives on the lock screen and in the Dynamic Island, track macros with protein pacing and an on-device meal parser, and submit a weekly check-in. Coaches see a client\'s week on one screen, assign programs, and set targets. Offline-first with row-level-secured sync.',
+    highlights: [
+      'Live Activity and Dynamic Island workout controls',
+      'Protein pacing against a planned feeding schedule',
+      'Food search across USDA, Open Food Facts and FatSecret, plus barcode scanning',
+      'Coach side under Supabase row-level security; nothing from a client stored on the coach\'s device',
+    ],
+  },
+  {
+    id: 'locker-room',
+    title: 'The Locker Room',
+    tagline: 'Post the PR, the video, and the song it happened to.',
+    year: '2026',
+    kind: 'Mobile app',
+    techs: ['React Native', 'Expo', 'TypeScript', 'Supabase', 'Spotify API', 'RevenueCat'],
+    description:
+      'A social fitness app: log workouts, post personal records with photos or video and the track you hit it to, and earn achievements. Supabase Edge Functions handle Spotify search, signed uploads, achievement evaluation and subscription webhooks.',
+    highlights: ['Spotify-tagged PR posts', 'Achievement engine as an Edge Function', 'Two selectable theme packs'],
+  },
+  {
+    id: 'sentinel',
+    title: 'Sentinel',
+    tagline: 'One screen for the security posture of a homelab.',
+    year: '2026',
+    status: 'Milestone 1',
+    kind: 'Desktop app',
+    techs: ['Tauri 2', 'Rust', 'React 19', 'TypeScript', 'SQLite'],
+    description:
+      'A native desktop app for homelab operators: system and resource monitoring, an alert system with severities, and a security score, with network scanning, Docker monitoring, SSH failed-login tracking and CVE matching on the roadmap.',
+    highlights: ['Rust backend with SQLite migrations', 'Alerting with severity and category', 'Security score dashboard'],
+  },
+  {
     id: 'senior-project',
     title: 'Carbon Weighted Traffic Control',
     tagline: 'Senior capstone: traffic simulation meets EPA emissions data.',

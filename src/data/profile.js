@@ -71,6 +71,27 @@ export const RESUMES = [
 
 export const BACKLOG = [
   {
+    title: 'Programmed, phases 3 and 4',
+    techs: ['Swift', 'Supabase', 'watchOS'],
+    horizon: 'Next',
+    description:
+      'Social posts with per-post visibility enforced by row-level security, so a shared meal can be logged as a snapshot. Then an eat-out finder and an Apple Watch companion for the active workout.',
+  },
+  {
+    title: 'Sentinel, milestones 2 to 6',
+    techs: ['Rust', 'Tauri', 'nmap'],
+    horizon: '~6 months',
+    description:
+      'Network scanning, Docker container monitoring, SSH failed-login tracking, CVE matching against what is installed, and a unified security score. The foundation and the alert system are done.',
+  },
+  {
+    title: 'Job matching that reads the resume',
+    techs: ['Node.js', 'React', 'ML'],
+    horizon: '~4 months',
+    description:
+      'Scrape listings, parse the resume, and surface roles that are genuinely good fits instead of keyword hits. The scraper, API and client are scaffolded; the matching is the work left.',
+  },
+  {
     title: 'Self-hosted communication app',
     techs: ['WebRTC', 'Socket.io', 'React', 'MongoDB'],
     horizon: '~4 months',
@@ -83,12 +104,5 @@ export const BACKLOG = [
     horizon: '~12 months',
     description:
       'A 2D/3D engine with a custom renderer, physics, and an entity-component system. The point is the graphics programming, not the games.',
-  },
-  {
-    title: 'Job matching that reads the resume',
-    techs: ['Python', 'React', 'ML'],
-    horizon: '~8 months',
-    description:
-      'Scrape listings, parse the resume, and surface roles that are genuinely good fits instead of keyword hits. Tracks applications along the way.',
   },
 ];

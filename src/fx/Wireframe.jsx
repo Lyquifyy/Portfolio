@@ -2,20 +2,31 @@ import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '../hooks/useReducedMotion';
 
 /*
- * A wireframe massing model, drawn on a 2D canvas with a hand-rolled
- * perspective projection. Boxes extrude from the ground plane on first view,
- * levels are labelled like a Revit elevation, and the whole thing can be
- * dragged with inertia. Colours come from CSS so it follows the theme.
+ * A wireframe dumbbell on a 2D canvas with a hand-rolled perspective
+ * projection. Every part is a cylinder along the X axis: the bar, two
+ * collars, and three plates a side. Rings are drawn at each end of a part
+ * and joined by a few longitudinal lines. It turns on its own and can be
+ * dragged, with inertia. Colours come from CSS so it follows the theme.
  */
-const BOXES = [
-  // x, z, w, d, h  (model units; y is up)
-  [-1.6, -1.2, 1.4, 1.2, 1.1],
-  [-0.1, -1.2, 1.9, 1.2, 2.6],
-  [ 0.9,  0.2, 0.9, 0.9, 3.4],
-  [-1.6,  0.2, 1.1, 1.0, 1.8],
-  [-0.4,  0.3, 1.2, 0.9, 0.8],
+const SEG = 36;
+
+function plates(sign) {
+  const out = [];
+  let x = 2.5;
+  [[1.0, 0.3], [0.84, 0.26], [0.64, 0.22]].forEach(([r, t]) => {
+    out.push({ x0: sign * x, x1: sign * (x + t), r, long: 12, accent: true });
+    x += t + 0.06;
+  });
+  return out;
+}
+
+const PARTS = [
+  { x0: -3.4, x1: 3.4, r: 0.11, long: 6 },
+  { x0: -2.46, x1: -2.14, r: 0.24, long: 8 },
+  { x0: 2.14, x1: 2.46, r: 0.24, long: 8 },
+  ...plates(-1),
+  ...plates(1),
 ];
-const LEVELS = [0, 1.1, 1.8, 2.6, 3.4];
 
 function cssColour(name, fallback) {
   const v = getComputedStyle(document.body).getPropertyValue(name).trim();
@@ -32,9 +43,9 @@ export default function Wireframe() {
     if (!ctx) return undefined;
     const reduced = prefersReducedMotion();
 
-    let w = 0, h = 0, dpr = 1;
+    let w = 0, h = 0;
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = canvas.clientWidth; h = canvas.clientHeight;
       canvas.width = w * dpr; canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -43,107 +54,89 @@ export default function Wireframe() {
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
     ro?.observe(canvas);
 
-    let col = { line: '#6f8fb8', fg: '#15213a', accent: '#ff5a1f', dim: '#8a97ad' };
+    let col = { fg: '#16171a', accent: '#6d4ae8' };
     const readCol = () => {
-      col = {
-        line: cssColour('--fg-3', col.line),
-        fg: cssColour('--fg', col.fg),
-        accent: cssColour('--accent', col.accent),
-        dim: cssColour('--fg-3', col.dim),
-      };
+      col = { fg: cssColour('--fg', col.fg), accent: cssColour('--accent', col.accent) };
     };
     readCol();
     const mo = new MutationObserver(readCol);
     mo.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
 
-    // camera
-    let yaw = -0.65, pitch = 0.42;
+    let yaw = -0.7, pitch = 0.32, roll = -0.35;
     let vyaw = 0, vpitch = 0;
     let dragging = false, lx = 0, ly = 0;
-    let build = reduced ? 1 : 0;
-    const t0 = performance.now();
     let raf = 0, running = true;
 
     const project = (x, y, z) => {
-      // rotate yaw around Y, pitch around X
+      // roll about Z (tilts the bar), then yaw about Y, then pitch about X
+      const cr = Math.cos(roll), sr = Math.sin(roll);
+      let X = x * cr - y * sr;
+      let Y = x * sr + y * cr;
+      let Z = z;
       const cy = Math.cos(yaw), sy = Math.sin(yaw);
+      const X2 = X * cy - Z * sy;
+      Z = X * sy + Z * cy;
+      X = X2;
       const cx = Math.cos(pitch), sx = Math.sin(pitch);
-      let X = x * cy - z * sy;
-      let Z = x * sy + z * cy;
-      let Y = y * cx - Z * sx;
-      Z = y * sx + Z * cx;
-      const dist = 7.5;
-      const f = (Math.min(w, h) * 0.95) / (dist + Z);
-      return [w / 2 + X * f, h * 0.57 - Y * f, Z];
+      const Y2 = Y * cx - Z * sx;
+      Z = Y * sx + Z * cx;
+      Y = Y2;
+      const dist = 9;
+      const f = (Math.min(w, h) * 1.05) / (dist + Z);
+      return [w / 2 + X * f, h / 2 - Y * f, Z];
     };
 
-    const seg = (a, b, stroke, width = 1) => {
+    const ring = (x, r) => {
+      const pts = [];
+      for (let i = 0; i < SEG; i++) {
+        const a = (i / SEG) * Math.PI * 2;
+        pts.push(project(x, Math.cos(a) * r, Math.sin(a) * r));
+      }
+      return pts;
+    };
+
+    const alphaFor = (z) => 0.3 + 0.7 * (1 - (z + 2.2) / 4.4);
+
+    const polyline = (pts, stroke, width, closed) => {
       ctx.beginPath();
-      ctx.moveTo(a[0], a[1]);
-      ctx.lineTo(b[0], b[1]);
+      pts.forEach((p, i) => (i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])));
+      if (closed) ctx.closePath();
       ctx.strokeStyle = stroke;
       ctx.lineWidth = width;
       ctx.stroke();
     };
 
-    const draw = (t) => {
+    const draw = () => {
       if (!running) return;
       raf = requestAnimationFrame(draw);
-      if (!reduced) {
-        build = Math.min(1, (t - t0 - 300) / 1600);
-        if (build < 0) build = 0;
-        if (!dragging) { yaw += 0.0025 + vyaw; pitch += vpitch; vyaw *= 0.95; vpitch *= 0.9; }
-        pitch = Math.max(0.15, Math.min(1.1, pitch));
+      if (!reduced && !dragging) {
+        yaw += 0.004 + vyaw; pitch += vpitch;
+        vyaw *= 0.95; vpitch *= 0.9;
+        pitch = Math.max(-0.6, Math.min(0.9, pitch));
       }
       ctx.clearRect(0, 0, w, h);
-      const eb = 1 - Math.pow(1 - build, 3);
+      ctx.lineJoin = 'round';
 
-      // ground grid
-      ctx.globalAlpha = 0.55;
-      for (let i = -3; i <= 3; i++) {
-        seg(project(i, 0, -3), project(i, 0, 3), col.line, 0.6);
-        seg(project(-3, 0, i), project(3, 0, i), col.line, 0.6);
-      }
+      PARTS.forEach(part => {
+        const a = ring(part.x0, part.r);
+        const b = ring(part.x1, part.r);
+        const stroke = part.accent ? col.accent : col.fg;
+        // rings, segment by segment so depth can fade each one
+        for (const pts of [a, b]) {
+          for (let i = 0; i < SEG; i++) {
+            const p = pts[i], q = pts[(i + 1) % SEG];
+            ctx.globalAlpha = alphaFor((p[2] + q[2]) / 2);
+            polyline([p, q], stroke, part.accent ? 1.4 : 1.1, false);
+          }
+        }
+        // longitudinal lines
+        for (let i = 0; i < part.long; i++) {
+          const k = Math.round((i / part.long) * SEG) % SEG;
+          ctx.globalAlpha = alphaFor((a[k][2] + b[k][2]) / 2) * 0.8;
+          polyline([a[k], b[k]], col.fg, 1, false);
+        }
+      });
       ctx.globalAlpha = 1;
-
-      // axes
-      seg(project(0, 0, 0), project(3.4, 0, 0), col.accent, 1);
-      seg(project(0, 0, 0), project(0, 0, 3.4), col.accent, 1);
-      seg(project(0, 0, 0), project(0, 3.6 * eb, 0), col.accent, 1);
-
-      // boxes
-      BOXES.forEach(([x, z, bw, bd, bh], bi) => {
-        const local = Math.min(1, Math.max(0, (eb * 1.6 - bi * 0.12)));
-        const H = bh * local;
-        const c = [
-          [x, 0, z], [x + bw, 0, z], [x + bw, 0, z + bd], [x, 0, z + bd],
-          [x, H, z], [x + bw, H, z], [x + bw, H, z + bd], [x, H, z + bd],
-        ].map(p => project(...p));
-        const E = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
-        E.forEach(([a, b]) => {
-          const depth = (c[a][2] + c[b][2]) / 2;
-          ctx.globalAlpha = 0.45 + 0.55 * (1 - (depth + 3) / 6);
-          seg(c[a], c[b], col.fg, 1.1);
-        });
-        ctx.globalAlpha = 1;
-        // vertices
-        ctx.fillStyle = col.fg;
-        c.forEach(p => { ctx.fillRect(p[0] - 1.5, p[1] - 1.5, 3, 3); });
-      });
-
-      // level markers
-      ctx.font = '600 10px "IBM Plex Mono", monospace';
-      ctx.textBaseline = 'middle';
-      LEVELS.forEach((lv, i) => {
-        if (lv > 3.6 * eb + 0.01) return;
-        const a = project(-2.4, lv, -1.6);
-        const b = project(-2.0, lv, -1.6);
-        seg(a, b, col.dim, 1);
-        ctx.fillStyle = col.dim;
-        ctx.textAlign = 'right';
-        ctx.fillText(i === 0 ? 'L0  ±0.00' : `L${i}  +${lv.toFixed(2)}`, a[0] - 6, a[1]);
-      });
-
     };
     raf = requestAnimationFrame(draw);
 
@@ -180,5 +173,5 @@ export default function Wireframe() {
     };
   }, []);
 
-  return <canvas ref={ref} className="wire" role="img" aria-label="Rotating wireframe massing model. Drag to orbit." />;
+  return <canvas ref={ref} className="wire" role="img" aria-label="Rotating wireframe dumbbell. Drag to orbit." />;
 }

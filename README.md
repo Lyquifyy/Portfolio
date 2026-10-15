@@ -8,8 +8,7 @@ One page: intro, profile, experience, work, security, a panel that pulls recent 
 
 Everything in `src/fx/` is hand-written; there is no animation library.
 
-- `Cursor` — crosshair that snaps to links and buttons. Fine pointers only.
-- `Wireframe` — a wireframe model on a 2D canvas with a hand-rolled perspective projection. Drag to orbit, with inertia.
+- `Wireframe` — a wireframe dumbbell on a 2D canvas with a hand-rolled perspective projection. Drag to orbit, with inertia.
 - `SheetRail` — scroll-driven horizontal rail of project cards inside a sticky viewport. Native scrolling only. Falls back to scroll-snap below 900px.
 - `Terminal` — a session transcript that types itself when scrolled into view.
 - Theme flip uses the View Transitions API as a circular wipe where available.
