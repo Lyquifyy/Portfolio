@@ -13,6 +13,9 @@ import GitHubLive from './components/GitHubLive';
 import Wireframe from './fx/Wireframe';
 import Terminal from './fx/Terminal';
 import SheetRail from './fx/SheetRail';
+import ProjectSheet from './fx/ProjectSheet';
+import DineSensePulse from './fx/DineSensePulse';
+import DynamicIsland from './fx/DynamicIsland';
 
 import { PROFILE, RESUMES, BACKLOG } from './data/profile';
 import { EXPERIENCE } from './data/experience';
@@ -20,18 +23,24 @@ import { PROJECTS } from './data/projects';
 import { SECURITY, SESSION } from './data/security';
 
 const CHAPTERS = [
-  { id: 'top',        num: '00', label: 'Intro'      },
-  { id: 'profile',    num: '01', label: 'Profile'    },
-  { id: 'experience', num: '02', label: 'Experience' },
-  { id: 'projects',   num: '03', label: 'Work'       },
-  { id: 'security',   num: '04', label: 'Security'   },
-  { id: 'github',     num: '05', label: 'GitHub'     },
-  { id: 'resumes',    num: '06', label: 'Résumés'    },
-  { id: 'backlog',    num: '07', label: 'Backlog'    },
-  { id: 'contact',    num: '08', label: 'Contact'    },
+  { id: 'top',        label: 'Intro'      },
+  { id: 'profile',    label: 'Profile'    },
+  { id: 'experience', label: 'Experience' },
+  { id: 'projects',   label: 'Work'       },
+  { id: 'security',   label: 'Security'   },
+  { id: 'github',     label: 'GitHub'     },
+  { id: 'resumes',    label: 'Résumés'    },
+  { id: 'backlog',    label: 'Backlog'    },
+  { id: 'contact',    label: 'Contact'    },
 ];
 
 const YEAR = new Date().getFullYear();
+
+// Live pieces shown inside a project's sheet.
+const DEMOS = {
+  dinesense: () => <DineSensePulse />,
+  programmed: () => <DynamicIsland />,
+};
 
 function Chapter({ id, title, children, className = '', wide = false }) {
   return (
@@ -55,6 +64,84 @@ function TechList({ items, className = '' }) {
   );
 }
 
+/* ---- Skills cross-referenced with the work that used them ------------------ */
+
+function tokens(skill) {
+  return skill.toLowerCase().replace(/[()]/g, ',').split(/,|\s\/\s/)
+    .map(t => t.trim()).filter(Boolean);
+}
+
+function techMatches(tech, tok) {
+  const t = tech.toLowerCase();
+  if (t === tok) return true;
+  if (t.startsWith(`${tok} `) && /^\d/.test(t.slice(tok.length + 1))) return true;   // "react 19", ".net 8", "swift 6"
+  if ((tok.includes('.') || tok.length >= 6) && t.includes(tok)) return true;        // "asp.net core", "typescript"
+  return false;
+}
+
+function usedIn(skill) {
+  const toks = tokens(skill);
+  const hit = (techs) => techs.some(t => toks.some(tok => techMatches(t, tok)));
+  return {
+    projects: PROJECTS.filter(p => hit(p.techs)),
+    jobs: EXPERIENCE.filter(j => hit(j.techs)),
+  };
+}
+
+function Skills({ onOpen, onJob }) {
+  const [active, setActive] = useState(null);
+  const groups = useMemo(() => PROFILE.skills.map(g => ({
+    ...g,
+    items: g.items.map(s => ({ name: s, ...usedIn(s) })),
+  })), []);
+  const current = active && groups.flatMap(g => g.items).find(s => s.name === active);
+
+  return (
+    <div className="skills">
+      {groups.map(g => (
+        <div className="skills__group" key={g.group}>
+          <h3 className="skills__name">{g.group}</h3>
+          <div className="skills__chips">
+            {g.items.map(s => {
+              const n = s.projects.length + s.jobs.length;
+              return (
+                <button
+                  type="button"
+                  key={s.name}
+                  className={`chip${active === s.name ? ' is-active' : ''}${n ? '' : ' chip--quiet'}`}
+                  onClick={() => setActive(a => (a === s.name ? null : s.name))}
+                  aria-pressed={active === s.name}
+                >
+                  {s.name}{n > 0 && <span className="chip__n">{n}</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+      <div className="skills__used" aria-live="polite">
+        {!current && <p>Pick a skill to see where it was used.</p>}
+        {current && (current.projects.length + current.jobs.length === 0) && (
+          <p><strong>{current.name}</strong> is on the résumé but not attached to a project here.</p>
+        )}
+        {current && (current.projects.length + current.jobs.length > 0) && (
+          <>
+            <p><strong>{current.name}</strong> shows up in</p>
+            <ul>
+              {current.jobs.map(j => (
+                <li key={j.company}><button type="button" className="link" onClick={onJob}>{j.role}, {j.company}</button></li>
+              ))}
+              {current.projects.map(p => (
+                <li key={p.id}><button type="button" className="link" onClick={(e) => onOpen(p.id, e.currentTarget)}>{p.title}</button> <span className="muted">· {p.kind}</span></li>
+              ))}
+            </ul>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const { dark, setDark } = useContext(ThemeContext);
   const [active, setActive] = useState(0);
@@ -63,9 +150,24 @@ export default function App() {
   const [formStatus, setFormStatus] = useState('idle');
   const [copied, setCopied] = useState(false);
   const [xray, setXray] = useState(false);
+  const [open, setOpen] = useState(() => {
+    const m = typeof window !== 'undefined' && window.location.hash.match(/^#p-([a-z0-9-]+)$/);
+    return m && PROJECTS.some(p => p.id === m[1]) ? { id: m[1], from: null } : null;
+  });
 
   const scrollTo = useCallback((id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
+  const openProject = useCallback((id, el) => {
+    const from = el ? el.getBoundingClientRect() : null;
+    setOpen({ id, from: from ? { left: from.left, top: from.top, width: from.width, height: from.height } : null });
+    try { window.history.replaceState(null, '', `#p-${id}`); } catch {}
+  }, []);
+
+  const closeProject = useCallback(() => {
+    setOpen(null);
+    try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch {}
   }, []);
 
   // Scroll reveals. Anything already on screen is shown at once; the observer
@@ -155,6 +257,9 @@ export default function App() {
     ...CHAPTERS.map(c => ({
       id: `go-${c.id}`, group: 'Go to', label: c.label, run: () => scrollTo(c.id),
     })),
+    ...PROJECTS.map(p => ({
+      id: `p-${p.id}`, group: 'Projects', label: p.title, hint: p.kind, run: () => openProject(p.id, null),
+    })),
     { id: 'open-github', group: 'Open', label: 'GitHub profile', hint: 'Lyquifyy', run: () => window.open(PROFILE.github, '_blank', 'noopener') },
     { id: 'open-linkedin', group: 'Open', label: 'LinkedIn', hint: 'zander-erwin', run: () => window.open(PROFILE.linkedin, '_blank', 'noopener') },
     { id: 'open-dinesense', group: 'Open', label: 'DineSense', hint: 'dinesense.app', run: () => window.open('https://dinesense.app', '_blank', 'noopener') },
@@ -165,7 +270,7 @@ export default function App() {
     { id: 'mail', group: 'Contact', label: 'Compose an email', hint: 'mailto', run: () => { window.location.href = `mailto:${PROFILE.email}`; } },
     { id: 'theme', group: 'View', label: dark ? 'Switch to light' : 'Switch to dark', hint: 'theme', run: () => setDark(!dark) },
     { id: 'xray', group: 'View', label: xray ? 'Leave X-ray view' : 'X-ray view', hint: 'outline every box', run: () => setXray(x => !x) },
-  ], [dark, setDark, scrollTo, copyEmail, xray]);
+  ], [dark, setDark, scrollTo, copyEmail, xray, openProject]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -179,6 +284,7 @@ export default function App() {
   };
 
   const email = PROFILE.email;
+  const openProjectData = open && PROJECTS.find(p => p.id === open.id);
 
   return (
     <div className="app">
@@ -202,7 +308,7 @@ export default function App() {
       <ChapterRail chapters={CHAPTERS} active={active} onSelect={scrollTo} />
 
       <main className="page">
-        {/* ------------------------------------------------ 00 Intro */}
+        {/* ------------------------------------------------ Intro */}
         <section id="top" className="hero">
           <div className="hero__grid">
             <div className="hero__text">
@@ -224,7 +330,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* ------------------------------------------------ 01 Profile */}
+        {/* ------------------------------------------------ Profile */}
         <Chapter id="profile" title="Profile">
           <div className="split">
             <div className="prose">
@@ -251,17 +357,13 @@ export default function App() {
             </figure>
           </div>
 
-          <div className="index reveal" aria-label="Skills">
-            {PROFILE.skills.map(g => (
-              <div className="index__row" key={g.group}>
-                <span className="index__key">{g.group}</span>
-                <span className="index__val">{g.items.join(', ')}</span>
-              </div>
-            ))}
+          <div className="reveal">
+            <h3 className="sub">Skills, and where each one was used</h3>
+            <Skills onOpen={openProject} onJob={() => scrollTo('experience')} />
           </div>
         </Chapter>
 
-        {/* ------------------------------------------------ 02 Experience */}
+        {/* ------------------------------------------------ Experience */}
         <Chapter id="experience" title="Experience">
           <ol className="exp">
             {EXPERIENCE.map((job, i) => (
@@ -285,7 +387,7 @@ export default function App() {
           </ol>
         </Chapter>
 
-        {/* ------------------------------------------------ 03 Work */}
+        {/* ------------------------------------------------ Work */}
         <Chapter id="projects" title="Work" wide>
           <SheetRail
             count={PROJECTS.length}
@@ -293,17 +395,25 @@ export default function App() {
               <div className="rail-hud" aria-hidden="true">
                 <span className="rail-hud__num">{i + 1} of {PROJECTS.length}</span>
                 <span className="rail-hud__bar"><i /></span>
+                <span className="rail-hud__hint">Click a card to open it</span>
               </div>
             )}
           >
-            {PROJECTS.map((p, i) => (
-              <article className="sheet" key={p.id} data-snap="">
+            {PROJECTS.map((p) => (
+              <article className={`sheet${DEMOS[p.id] ? ' sheet--live' : ''}`} key={p.id}>
+                <button
+                  type="button"
+                  className="sheet__hit"
+                  aria-label={`Open ${p.title}`}
+                  onClick={(e) => openProject(p.id, e.currentTarget.closest('.sheet'))}
+                />
                 <h3 className="sheet__title">{p.title}</h3>
                 <p className="sheet__tagline">{p.tagline}</p>
                 <p className="sheet__desc">{p.description}</p>
                 <footer className="sheet__foot">
                   <TechList items={p.techs.slice(0, 4)} />
                   <p className="sheet__links">
+                    {DEMOS[p.id] && <span className="sheet__live">Live inside</span>}
                     {p.live && <a href={p.live} target="_blank" rel="noopener noreferrer">Live ↗</a>}
                     {p.repo && <a href={p.repo} target="_blank" rel="noopener noreferrer">Source ↗</a>}
                     <span className="sheet__year">{p.year}</span>
@@ -314,36 +424,21 @@ export default function App() {
           </SheetRail>
 
           <div className="pindex reveal">
-            {PROJECTS.map((p, i) => (
-              <details className="pindex__row" key={p.id}>
-                <summary className="pindex__summary">
-                  <span className="pindex__title">
-                    <span>{p.title}</span>
-                    <span className="pindex__tagline">{p.tagline}</span>
-                  </span>
-                  <span className="pindex__stack">{p.techs.slice(0, 3).join(' · ')}</span>
-                  <span className="pindex__year">{p.year}</span>
-                  <span className="pindex__toggle" aria-hidden="true">+</span>
-                </summary>
-                <div className="pindex__detail">
-                  <p>{p.description}</p>
-                  <ul className="bullets">
-                    {p.highlights.map((h, j) => <li key={j}>{h}</li>)}
-                  </ul>
-                  <TechList items={p.techs} />
-                  <p className="links">
-                    {p.live && <a href={p.live} target="_blank" rel="noopener noreferrer">Visit →</a>}
-                    {p.repo
-                      ? <a href={p.repo} target="_blank" rel="noopener noreferrer">Source on GitHub →</a>
-                      : <span className="muted">Private repository</span>}
-                  </p>
-                </div>
-              </details>
+            {PROJECTS.map((p) => (
+              <button type="button" className="pindex__row" key={p.id} onClick={(e) => openProject(p.id, e.currentTarget)}>
+                <span className="pindex__title">
+                  <span>{p.title}</span>
+                  <span className="pindex__tagline">{p.tagline}</span>
+                </span>
+                <span className="pindex__stack">{p.techs.slice(0, 3).join(' · ')}</span>
+                <span className="pindex__year">{p.year}</span>
+                <span className="pindex__toggle" aria-hidden="true">Open</span>
+              </button>
             ))}
           </div>
         </Chapter>
 
-        {/* ------------------------------------------------ 04 Security */}
+        {/* ------------------------------------------------ Security */}
         <Chapter id="security" title="Security">
           <div className="sec__top reveal">
             <Terminal script={SESSION} />
@@ -367,14 +462,14 @@ export default function App() {
           </div>
         </Chapter>
 
-        {/* ------------------------------------------------ 05 GitHub */}
+        {/* ------------------------------------------------ GitHub */}
         <Chapter id="github" title="GitHub">
           <div className="reveal">
             <GitHubLive user={PROFILE.githubUser} profileUrl={PROFILE.github} />
           </div>
         </Chapter>
 
-        {/* ------------------------------------------------ 06 Résumés */}
+        {/* ------------------------------------------------ Résumés */}
         <Chapter id="resumes" title="Résumés">
           <div className="resumes">
             {RESUMES.map((r, i) => (
@@ -387,7 +482,7 @@ export default function App() {
           </div>
         </Chapter>
 
-        {/* ------------------------------------------------ 07 Backlog */}
+        {/* ------------------------------------------------ Backlog */}
         <Chapter id="backlog" title="Backlog">
           <ol className="backlog">
             {BACKLOG.map((b, i) => (
@@ -403,7 +498,7 @@ export default function App() {
           </ol>
         </Chapter>
 
-        {/* ------------------------------------------------ 08 Contact */}
+        {/* ------------------------------------------------ Contact */}
         <Chapter id="contact" title="Contact">
           <div className="split split--contact">
             <div className="reveal">
@@ -450,6 +545,17 @@ export default function App() {
         <p>© {YEAR} Zander Erwin</p>
         <p><a href="https://github.com/Lyquifyy/Portfolio" target="_blank" rel="noopener noreferrer">Source</a></p>
       </footer>
+
+      {openProjectData && (
+        <ProjectSheet
+          key={openProjectData.id}
+          project={openProjectData}
+          from={open.from}
+          demo={DEMOS[openProjectData.id] ? DEMOS[openProjectData.id]() : null}
+          onClose={closeProject}
+          techList={TechList}
+        />
+      )}
 
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} actions={actions} />
     </div>

@@ -1,4 +1,6 @@
 import { useGitHub } from '../hooks/useGitHub';
+import { useGitHubEvents } from '../hooks/useGitHubEvents';
+import Heatmap from '../fx/Heatmap';
 
 function relative(iso) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -14,6 +16,7 @@ function relative(iso) {
 
 export default function GitHubLive({ user, profileUrl }) {
   const data = useGitHub(user);
+  const events = useGitHubEvents(user);
 
   if (!data) {
     return (
@@ -23,12 +26,10 @@ export default function GitHubLive({ user, profileUrl }) {
     );
   }
 
-  const max = Math.max(...data.languages.map(([, n]) => n), 1);
-
   return (
     <div className="gh">
       <div className="gh__col">
-        <p className="eyebrow">Recent pushes</p>
+        <p className="gh__label">Recent pushes</p>
         <ol className="gh__repos">
           {data.repos.map(r => (
             <li key={r.name} className="gh__repo">
@@ -44,21 +45,15 @@ export default function GitHubLive({ user, profileUrl }) {
         </ol>
       </div>
       <div className="gh__col">
-        <p className="eyebrow">Languages across public repos</p>
-        <ul className="gh__langs">
-          {data.languages.map(([lang, n]) => (
-            <li key={lang} className="gh__lang">
-              <span className="gh__langname">{lang}</span>
-              <span className="gh__bar" aria-hidden="true">
-                <span className="gh__fill" style={{ width: `${(n / max) * 100}%` }} />
-              </span>
-              <span className="gh__count">{n}</span>
-            </li>
-          ))}
-        </ul>
+        <p className="gh__label">Activity</p>
+        {events
+          ? <Heatmap days={events.days} />
+          : <p className="gh__note" aria-busy="true">Loading pushes…</p>}
         <p className="gh__note">
+          {events && !events.stale && events.total > 0 && `${events.total} commits pushed to public repositories in the period. `}
+          {events?.stale && 'GitHub did not answer for activity just now. '}
           {data.stale
-            ? 'Showing a cached snapshot; GitHub did not answer just now.'
+            ? 'Repository list is a cached snapshot.'
             : `${data.total} public repositories.`}{' '}
           <a href={profileUrl} target="_blank" rel="noopener noreferrer">See everything →</a>
         </p>

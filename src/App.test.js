@@ -47,3 +47,15 @@ test('the canvas degrades when the context is unavailable', () => {
   renderApp();
   expect(screen.getByRole('img', { name: /dumbbell/i })).toBeInTheDocument();
 });
+
+test('a project opens into a sheet and closes with Escape', async () => {
+  const { fireEvent } = require('@testing-library/react');
+  renderApp();
+  fireEvent.click(screen.getByRole('button', { name: /^open dinesense$/i }));
+  const dialog = await screen.findByRole('dialog');
+  expect(dialog).toHaveTextContent(/dinesense/i);
+  expect(screen.getByText(/chains with published figures/i)).toBeInTheDocument();
+  fireEvent.keyDown(window, { key: 'Escape' });
+  await new Promise(r => setTimeout(r, 450));
+  expect(screen.queryByRole('dialog')).toBeNull();
+});
