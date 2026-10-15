@@ -3,11 +3,10 @@ import usePointer, { pointer } from '../hooks/usePointer';
 import { prefersReducedMotion } from '../hooks/useReducedMotion';
 
 /*
- * CAD crosshair. Two hairlines span the viewport through the pointer, a
- * pick-box sits at the centre, and a readout trails with the coordinates.
- * Over interactive elements the pick-box "object-snaps": it animates out to
- * the element's bounding box and the hairlines fade, so the target reads as
- * a selected entity. Text inputs hand control back to the native caret.
+ * Crosshair cursor. Two hairlines span the viewport through the pointer and
+ * a small box sits at the centre. Over interactive elements the box snaps
+ * out to the element's bounding box and the hairlines fade. Text inputs
+ * hand control back to the native caret. Fine pointers only.
  */
 const SNAP_SELECTOR = 'a, button, summary, [data-snap], label.field';
 const TEXT_SELECTOR = 'input, textarea, [contenteditable]';
@@ -17,7 +16,6 @@ export default function Cursor() {
   const hRef = useRef(null);
   const vRef = useRef(null);
   const boxRef = useRef(null);
-  const readRef = useRef(null);
   usePointer();
 
   useEffect(() => {
@@ -29,10 +27,8 @@ export default function Cursor() {
     let mode = 'cross';
     let target = null;
     let bx = pointer.x, by = pointer.y, bw = 14, bh = 14;
-    let rx = pointer.x, ry = pointer.y;
     let visible = false;
     let raf = 0;
-    let lastRead = 0;
 
     const setMode = (m, t) => { mode = m; target = t; el.dataset.mode = m; };
     const onOver = (e) => {
@@ -55,7 +51,7 @@ export default function Cursor() {
     window.addEventListener('pointerup', onUp, { passive: true });
     window.addEventListener('blur', onLeave);
 
-    const tick = (t) => {
+    const tick = () => {
       raf = requestAnimationFrame(tick);
       const { x, y } = pointer;
       if (!visible && (x !== 0 || y !== 0)) onEnter();
@@ -72,18 +68,12 @@ export default function Cursor() {
       const k = mode === 'snap' ? 0.28 : 0.6;
       bx += (tx - bx) * k; by += (ty - by) * k;
       bw += (tw - bw) * 0.3; bh += (th - bh) * 0.3;
-      rx += (x - rx) * 0.18; ry += (y - ry) * 0.18;
 
       hRef.current.style.transform = `translate3d(0, ${y}px, 0)`;
       vRef.current.style.transform = `translate3d(${x}px, 0, 0)`;
       boxRef.current.style.transform = `translate3d(${bx - bw / 2}px, ${by - bh / 2}px, 0)`;
       boxRef.current.style.width = `${bw}px`;
       boxRef.current.style.height = `${bh}px`;
-      readRef.current.style.transform = `translate3d(${rx + 18}px, ${ry + 18}px, 0)`;
-      if (t - lastRead > 80) {
-        lastRead = t;
-        readRef.current.textContent = `X ${Math.round(x)}  Y ${Math.round(y + window.scrollY)}`;
-      }
     };
     raf = requestAnimationFrame(tick);
 
@@ -104,7 +94,6 @@ export default function Cursor() {
       <div ref={hRef} className="cursor__h" />
       <div ref={vRef} className="cursor__v" />
       <div ref={boxRef} className="cursor__box" />
-      <div ref={readRef} className="cursor__read" />
     </div>
   );
 }

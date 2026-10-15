@@ -29,22 +29,20 @@ function renderApp() {
   );
 }
 
-test('renders the masthead, chapters and title block', () => {
+test('renders the masthead and chapters', () => {
   renderApp();
   expect(screen.getAllByText(/Zander Erwin/i).length).toBeGreaterThan(0);
   expect(screen.getByRole('navigation', { name: /chapters/i })).toBeInTheDocument();
-  expect(screen.getByRole('heading', { name: /sheets/i })).toBeInTheDocument();
-  expect(screen.getByLabelText(/sheet information/i)).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: /^work$/i })).toBeInTheDocument();
 });
 
-test('renders one project sheet per project and every résumé download', () => {
+test('renders one card per project and every résumé download', () => {
   renderApp();
-  expect(screen.getAllByText(/^A-1\d\d$/).length).toBeGreaterThanOrEqual(2 * 9);
+  expect(document.querySelectorAll('.sheet')).toHaveLength(9);
   expect(screen.getAllByRole('link', { name: /download pdf/i })).toHaveLength(2);
 });
 
-test('canvases degrade when the context is unavailable', () => {
+test('the canvas degrades when the context is unavailable', () => {
   renderApp();
   expect(screen.getByRole('img', { name: /massing model/i })).toBeInTheDocument();
-  expect(screen.getByRole('img', { name: /skill sphere/i })).toBeInTheDocument();
 });

@@ -116,13 +116,13 @@ export const PROJECTS = [
   {
     id: 'portfolio',
     title: 'This site',
-    tagline: 'A drawing set, not a web page.',
+    tagline: 'The page you are reading.',
     year: '2024 – 2026',
     kind: 'Static site',
-    techs: ['React', 'WebGL', 'GLSL', 'Canvas', 'CSS'],
+    techs: ['React', 'Canvas', 'CSS'],
     repo: 'https://github.com/Lyquifyy/Portfolio',
     description:
-      'Rebuilt four times as my taste changed. This version is drawn like a sheet set: a hand-written WebGL contour field behind everything, a CAD crosshair that object-snaps to links, a live title block, dimension lines that measure the real layout, a wireframe massing model you can orbit, and a scroll-driven rail of project sheets. No animation library. Press ⌘K.',
-    highlights: ['GLSL fragment shader background, no library', 'Object-snap cursor and live title block', 'Scroll-driven sheet rail and drawn timeline', 'Command palette, X-ray mode, view-transition theme flip'],
+      'Rebuilt four times as my taste changed. This version keeps it to type and a few hand-written effects: a crosshair cursor that snaps to links, a wireframe model you can orbit, a scroll-driven rail of project cards, and a command palette. No animation library.',
+    highlights: ['Crosshair cursor with snap, fine pointers only', 'Canvas wireframe with hand-rolled projection', 'Scroll-driven rail, native scrolling only', 'Command palette (⌘K), X-ray view, view-transition theme flip'],
   },
 ];

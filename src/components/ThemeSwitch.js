@@ -32,10 +32,10 @@ export function ThemeSwitch() {
       onClick={toggle}
       className="theme-switch"
       aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
-      title={dark ? 'Paper' : 'Blueprint'}
+      title={dark ? 'Light' : 'Dark'}
     >
       <span className="theme-switch__dot" aria-hidden="true" />
-      <span className="theme-switch__label">{dark ? 'Paper' : 'Blueprint'}</span>
+      <span className="theme-switch__label">{dark ? 'Light' : 'Dark'}</span>
     </button>
   );
 }

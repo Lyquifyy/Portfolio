@@ -46,7 +46,7 @@ export default function Wireframe() {
     let col = { line: '#6f8fb8', fg: '#15213a', accent: '#ff5a1f', dim: '#8a97ad' };
     const readCol = () => {
       col = {
-        line: cssColour('--field-line', col.line),
+        line: cssColour('--fg-3', col.line),
         fg: cssColour('--fg', col.fg),
         accent: cssColour('--accent', col.accent),
         dim: cssColour('--fg-3', col.dim),
@@ -144,13 +144,6 @@ export default function Wireframe() {
         ctx.fillText(i === 0 ? 'L0  ±0.00' : `L${i}  +${lv.toFixed(2)}`, a[0] - 6, a[1]);
       });
 
-      // dimension across the model footprint
-      const d1 = project(-1.6, 0, 2.0), d2 = project(2.8, 0, 2.0);
-      seg(d1, d2, col.accent, 1);
-      [d1, d2].forEach(p => seg([p[0] - 4, p[1] + 4], [p[0] + 4, p[1] - 4], col.accent, 1));
-      ctx.fillStyle = col.accent;
-      ctx.textAlign = 'center';
-      ctx.fillText(`${(4.4 * 3.048).toFixed(2)} m`, (d1[0] + d2[0]) / 2, (d1[1] + d2[1]) / 2 + 12);
     };
     raf = requestAnimationFrame(draw);
 
