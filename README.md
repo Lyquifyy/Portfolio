@@ -12,7 +12,6 @@ Everything in `src/fx/` is hand-written; there is no animation library.
 - `Wireframe` — a wireframe model on a 2D canvas with a hand-rolled perspective projection. Drag to orbit, with inertia.
 - `SheetRail` — scroll-driven horizontal rail of project cards inside a sticky viewport. Native scrolling only. Falls back to scroll-snap below 900px.
 - `Terminal` — a session transcript that types itself when scrolled into view.
-- `SplitReveal`, `Tilt`, `Magnetic` — per-glyph heading rise, card tilt, buttons that pull toward the pointer.
 - Theme flip uses the View Transitions API as a circular wipe where available.
 
 All of it respects `prefers-reduced-motion`.

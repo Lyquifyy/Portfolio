@@ -40,6 +40,7 @@ test('renders one card per project and every résumé download', () => {
   renderApp();
   expect(document.querySelectorAll('.sheet')).toHaveLength(9);
   expect(screen.getAllByRole('link', { name: /download pdf/i })).toHaveLength(2);
+  expect(screen.getByRole('button', { name: /search/i })).toBeInTheDocument();
 });
 
 test('the canvas degrades when the context is unavailable', () => {

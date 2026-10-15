@@ -48,22 +48,6 @@ body.has-cursor * { cursor: none !important; }
 .cursor[data-mode='text'] .cursor__box { background: var(--accent); }
 .cursor.is-down .cursor__box { background: var(--accent); }
 
-/* ---- Split text --------------------------------------------------------- */
-.sr { display: inline-block; overflow: hidden; vertical-align: top; }
-.sr__w { display: inline-block; white-space: nowrap; }
-.sr__sp { display: inline; white-space: normal; }
-.sr__c {
-  display: inline-block;
-  transform: translateY(110%);
-  opacity: 0;
-  transition: transform 0.9s var(--ease-out), opacity 0.4s ease;
-  transition-delay: calc(var(--d, 0s) + var(--i) * 0.028s);
-}
-
-.sr.is-in .sr__c { transform: none; opacity: 1; }
-
-.hero__line { padding: 0.02em 0.05em 0.02em 0; }
-
 /* ---- Terminal ----------------------------------------------------------- */
 .term {
   border: 1px solid var(--rule);
@@ -119,19 +103,6 @@ body.has-cursor * { cursor: none !important; }
 
 @keyframes blink { 50% { opacity: 0; } }
 
-/* ---- Tilt --------------------------------------------------------------- */
-.tilt {
-  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
-  transition: transform 0.5s var(--ease);
-  will-change: transform;
-}
-
-/* ---- Magnetic ----------------------------------------------------------- */
-.magnet {
-  display: inline-block;
-  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
 /* ---- Theme view transition ---------------------------------------------- */
 ::view-transition-old(root),
 ::view-transition-new(root) {
@@ -144,7 +115,5 @@ body.has-cursor * { cursor: none !important; }
 
 /* ---- Reduced motion ----------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .sr__c { transform: none; opacity: 1; transition: none; }
-  .tilt { transform: none; }
   .term__caret { animation: none; }
 }

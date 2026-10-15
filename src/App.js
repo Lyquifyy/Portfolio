@@ -11,9 +11,6 @@ import CommandPalette from './components/CommandPalette';
 import GitHubLive from './components/GitHubLive';
 
 import Cursor from './fx/Cursor';
-import SplitReveal from './fx/SplitReveal';
-import Magnetic from './fx/Magnetic';
-import Tilt from './fx/Tilt';
 import Wireframe from './fx/Wireframe';
 import Terminal from './fx/Terminal';
 import SheetRail from './fx/SheetRail';
@@ -37,13 +34,10 @@ const CHAPTERS = [
 
 const YEAR = new Date().getFullYear();
 
-function Chapter({ id, num, title, children, className = '', wide = false }) {
+function Chapter({ id, title, children, className = '', wide = false }) {
   return (
     <section id={id} className={`chapter ${wide ? 'chapter--wide' : ''} ${className}`.trim()}>
-      <header className="chapter__head reveal">
-        <span className="chapter__num" aria-hidden="true">{num}</span>
-        <h2 className="chapter__title"><SplitReveal text={title} /></h2>
-      </header>
+      <h2 className="chapter__title reveal">{title}</h2>
       {children}
     </section>
   );
@@ -160,7 +154,7 @@ export default function App() {
 
   const actions = useMemo(() => [
     ...CHAPTERS.map(c => ({
-      id: `go-${c.id}`, group: 'Go to', label: c.label, hint: c.num, run: () => scrollTo(c.id),
+      id: `go-${c.id}`, group: 'Go to', label: c.label, run: () => scrollTo(c.id),
     })),
     { id: 'open-github', group: 'Open', label: 'GitHub profile', hint: 'Lyquifyy', run: () => window.open(PROFILE.github, '_blank', 'noopener') },
     { id: 'open-linkedin', group: 'Open', label: 'LinkedIn', hint: 'zander-erwin', run: () => window.open(PROFILE.linkedin, '_blank', 'noopener') },
@@ -203,9 +197,7 @@ export default function App() {
           <a href={PROFILE.github} target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
           <a href={`mailto:${email}`}>Email</a>
-          <button type="button" className="masthead__cmd" onClick={() => setPaletteOpen(true)} aria-haspopup="dialog" aria-label="Open command palette">
-            <kbd>⌘</kbd><kbd>K</kbd>
-          </button>
+          <button type="button" className="masthead__cmd" onClick={() => setPaletteOpen(true)} aria-haspopup="dialog" title="⌘K / Ctrl+K">Search</button>
           <ThemeSwitch />
         </nav>
       </header>
@@ -217,15 +209,15 @@ export default function App() {
         <section id="top" className="hero">
           <div className="hero__grid">
             <div className="hero__text">
-              <h1 className="hero__name">
-                <SplitReveal text="Zander" as="span" className="hero__line" delay={0.1} threshold={0.1} />
-                <SplitReveal text="Erwin" as="span" className="hero__line hero__line--last" delay={0.25} threshold={0.1} />
+              <h1 className="hero__name reveal">
+                <span>Zander</span>
+                <span className="hero__name-last">Erwin</span>
               </h1>
               <p className="hero__role reveal">{PROFILE.status}. {PROFILE.based}.</p>
               <p className="hero__thesis reveal">{PROFILE.thesis}</p>
               <div className="hero__actions reveal">
-                <Magnetic><button type="button" className="btn btn--solid" onClick={() => scrollTo('projects')}>See the work</button></Magnetic>
-                <Magnetic><a className="btn" href={RESUMES[0].file} download>Résumé</a></Magnetic>
+                <button type="button" className="btn btn--solid" onClick={() => scrollTo('projects')}>See the work</button>
+                <a className="btn" href={RESUMES[0].file} download>Résumé</a>
               </div>
             </div>
             <div className="hero__model reveal">
@@ -236,7 +228,7 @@ export default function App() {
         </section>
 
         {/* ------------------------------------------------ 01 Profile */}
-        <Chapter id="profile" num="01" title="Profile">
+        <Chapter id="profile" title="Profile">
           <div className="split">
             <div className="prose">
               {PROFILE.about.map((p, i) => <p key={i} className="reveal">{p}</p>)}
@@ -273,15 +265,11 @@ export default function App() {
         </Chapter>
 
         {/* ------------------------------------------------ 02 Experience */}
-        <Chapter id="experience" num="02" title="Experience">
+        <Chapter id="experience" title="Experience">
           <ol className="exp">
             {EXPERIENCE.map((job, i) => (
               <li className="exp__item reveal" key={job.company} style={{ transitionDelay: `${i * 0.06}s` }}>
-                <div className="exp__when">
-                  <span>{job.start}</span>
-                  <span className="exp__arrow" aria-hidden="true">↓</span>
-                  <span>{job.end}</span>
-                </div>
+                <p className="exp__when">{job.start} – {job.end}</p>
                 <div className="exp__body">
                   <h3 className="exp__role">{job.role}</h3>
                   <p className="exp__company">
@@ -301,19 +289,18 @@ export default function App() {
         </Chapter>
 
         {/* ------------------------------------------------ 03 Work */}
-        <Chapter id="projects" num="03" title="Work" wide>
+        <Chapter id="projects" title="Work" wide>
           <SheetRail
             count={PROJECTS.length}
             renderHud={(i) => (
               <div className="rail-hud" aria-hidden="true">
-                <span className="rail-hud__num">{String(i + 1).padStart(2, '0')} <em>/ {String(PROJECTS.length).padStart(2, '0')}</em></span>
+                <span className="rail-hud__num">{i + 1} of {PROJECTS.length}</span>
                 <span className="rail-hud__bar"><i /></span>
               </div>
             )}
           >
             {PROJECTS.map((p, i) => (
-              <Tilt as="article" className="sheet" key={p.id} data-snap="">
-                <span className="sheet__no">{String(i + 1).padStart(2, '0')}</span>
+              <article className="sheet" key={p.id} data-snap="">
                 <h3 className="sheet__title">{p.title}</h3>
                 <p className="sheet__tagline">{p.tagline}</p>
                 <p className="sheet__desc">{p.description}</p>
@@ -325,7 +312,7 @@ export default function App() {
                     <span className="sheet__year">{p.year}</span>
                   </p>
                 </footer>
-              </Tilt>
+              </article>
             ))}
           </SheetRail>
 
@@ -333,7 +320,6 @@ export default function App() {
             {PROJECTS.map((p, i) => (
               <details className="pindex__row" key={p.id}>
                 <summary className="pindex__summary">
-                  <span className="pindex__num">{String(i + 1).padStart(2, '0')}</span>
                   <span className="pindex__title">
                     <span>{p.title}</span>
                     <span className="pindex__tagline">{p.tagline}</span>
@@ -361,7 +347,7 @@ export default function App() {
         </Chapter>
 
         {/* ------------------------------------------------ 04 Security */}
-        <Chapter id="security" num="04" title="Security">
+        <Chapter id="security" title="Security">
           <div className="sec__top reveal">
             <Terminal script={SESSION} />
             <p className="sec__note">
@@ -385,31 +371,30 @@ export default function App() {
         </Chapter>
 
         {/* ------------------------------------------------ 05 GitHub */}
-        <Chapter id="github" num="05" title="GitHub">
+        <Chapter id="github" title="GitHub">
           <div className="reveal">
             <GitHubLive user={PROFILE.githubUser} profileUrl={PROFILE.github} />
           </div>
         </Chapter>
 
         {/* ------------------------------------------------ 06 Résumés */}
-        <Chapter id="resumes" num="06" title="Résumés">
+        <Chapter id="resumes" title="Résumés">
           <div className="resumes">
             {RESUMES.map((r, i) => (
               <article className="resume reveal" key={r.id} style={{ transitionDelay: `${i * 0.06}s` }}>
                 <h3 className="resume__title">{r.title}</h3>
                 <p className="resume__summary">{r.summary}</p>
-                <Magnetic><a className="btn" href={r.file} download>Download PDF</a></Magnetic>
+                <a className="btn" href={r.file} download>Download PDF</a>
               </article>
             ))}
           </div>
         </Chapter>
 
         {/* ------------------------------------------------ 07 Backlog */}
-        <Chapter id="backlog" num="07" title="Backlog">
+        <Chapter id="backlog" title="Backlog">
           <ol className="backlog">
             {BACKLOG.map((b, i) => (
               <li className="backlog__item reveal" key={b.title} style={{ transitionDelay: `${i * 0.05}s` }}>
-                <span className="backlog__num">{String(i + 1).padStart(2, '0')}</span>
                 <div>
                   <h3 className="backlog__title">{b.title}</h3>
                   <p className="backlog__desc">{b.description}</p>
@@ -422,14 +407,14 @@ export default function App() {
         </Chapter>
 
         {/* ------------------------------------------------ 08 Contact */}
-        <Chapter id="contact" num="08" title="Contact">
+        <Chapter id="contact" title="Contact">
           <div className="split split--contact">
             <div className="reveal">
               <p className="contact__lede">Email is fastest. I answer within a day or two.</p>
               <a className="contact__email" href={`mailto:${email}`}>{email}</a>
               <div className="contact__row">
-                <Magnetic><button type="button" className="btn" onClick={copyEmail}>{copied ? 'Copied' : 'Copy address'}</button></Magnetic>
-                <Magnetic><a className="btn" href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a></Magnetic>
+                <button type="button" className="btn" onClick={copyEmail}>{copied ? 'Copied' : 'Copy address'}</button>
+                <a className="btn" href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
               </div>
             </div>
             <form className="form reveal" onSubmit={handleSubmit}>
@@ -451,11 +436,9 @@ export default function App() {
                   onChange={e => setForm(f => ({ ...f, message: e.target.value }))} />
               </label>
               <div className="form__foot">
-                <Magnetic>
-                  <button type="submit" className="btn btn--solid" disabled={formStatus === 'sending'}>
-                    {formStatus === 'sending' ? 'Sending…' : 'Send'}
-                  </button>
-                </Magnetic>
+                <button type="submit" className="btn btn--solid" disabled={formStatus === 'sending'}>
+                  {formStatus === 'sending' ? 'Sending…' : 'Send'}
+                </button>
                 <p className="form__status" role="status" aria-live="polite">
                   {formStatus === 'success' && 'Sent. I will reply soon.'}
                   {formStatus === 'error' && 'That did not go through. Email me directly instead.'}

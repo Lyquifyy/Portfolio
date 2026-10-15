@@ -12,7 +12,6 @@ export default function ChapterRail({ chapters, active, onSelect }) {
               onClick={() => onSelect(c.id)}
               aria-current={active === i ? 'true' : undefined}
             >
-              <span className="rail__num">{c.num}</span>
               <span className="rail__label">{c.label}</span>
             </button>
           </li>
