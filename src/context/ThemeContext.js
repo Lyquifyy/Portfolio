@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect } from 'react';
+import { createContext, useState, useLayoutEffect } from 'react';
 
 export const ThemeContext = createContext({ dark: false, setDark: () => {} });
 
@@ -16,7 +16,9 @@ function initialDark() {
 export function ThemeProvider({ children }) {
   const [dark, setDark] = useState(initialDark);
 
-  useEffect(() => {
+  // Layout effect so a flushSync() inside a view transition sees the new
+  // theme attribute before the transition snapshot is taken.
+  useLayoutEffect(() => {
     document.body.dataset.theme = dark ? 'dark' : 'light';
     try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch {}
   }, [dark]);

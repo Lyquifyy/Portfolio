@@ -1,0 +1,429 @@
+/* ==========================================================================
+   Effects layer: shader field, cursor, preloader, split text, dimension
+   lines, title block, terminal, tilt, magnetic, word reveal, view transition.
+   ========================================================================== */
+
+/* ---- Shader field ------------------------------------------------------- */
+.shader {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.2s ease 0.2s;
+}
+
+.app.is-plotted .shader { opacity: 1; }
+
+/* ---- Cursor ------------------------------------------------------------- */
+body.has-cursor,
+body.has-cursor * { cursor: none !important; }
+
+.cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.cursor.is-on { opacity: 1; }
+
+.cursor__h,
+.cursor__v {
+  position: absolute;
+  left: 0; top: 0;
+  background: var(--accent);
+  opacity: 0.55;
+  transition: opacity 0.25s ease;
+}
+
+.cursor__h { width: 100%; height: 1px; }
+.cursor__v { height: 100%; width: 1px; }
+
+.cursor[data-mode='snap'] .cursor__h,
+.cursor[data-mode='snap'] .cursor__v,
+.cursor[data-mode='text'] .cursor__h,
+.cursor[data-mode='text'] .cursor__v { opacity: 0.12; }
+
+.cursor__box {
+  position: absolute;
+  left: 0; top: 0;
+  width: 14px; height: 14px;
+  border: 1px solid var(--accent);
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+  will-change: transform, width, height;
+}
+
+.cursor[data-mode='snap'] .cursor__box {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  outline: 1px dashed var(--accent-weak);
+  outline-offset: 3px;
+}
+
+.cursor[data-mode='text'] .cursor__box { border-radius: 1px; background: var(--accent); }
+
+.cursor.is-down .cursor__box { background: var(--accent); }
+
+.cursor__read {
+  position: absolute;
+  left: 0; top: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  white-space: pre;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  padding: 0.15rem 0.35rem;
+  transition: opacity 0.25s ease;
+}
+
+.cursor[data-mode='snap'] .cursor__read,
+.cursor[data-mode='text'] .cursor__read { opacity: 0; }
+
+/* ---- Preloader (plot sequence) ------------------------------------------ */
+.plot {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+}
+
+.plot__half {
+  position: absolute;
+  left: 0; right: 0;
+  height: 50%;
+  background: var(--bg);
+  transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.plot__half--top { top: 0; border-bottom: 1px solid var(--rule); }
+.plot__half--bottom { bottom: 0; }
+
+.plot--open .plot__half--top { transform: translateY(-100%); }
+.plot--open .plot__half--bottom { transform: translateY(100%); }
+
+.plot__stage {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  transition: opacity 0.35s ease, transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.plot--open .plot__stage { opacity: 0; transform: scale(0.96); }
+
+.plot__name {
+  position: relative;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(4rem, 16vw, 13rem);
+  line-height: 0.82;
+  letter-spacing: 0.01em;
+  text-align: left;
+  overflow: hidden;
+}
+
+.plot__ink {
+  display: block;
+  clip-path: inset(0 100% 0 0);
+  animation: ink 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.1s forwards;
+}
+
+.plot__head {
+  position: absolute;
+  top: -5%;
+  bottom: -5%;
+  left: 0;
+  width: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 22px var(--accent);
+  animation: head 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.1s forwards;
+}
+
+@keyframes ink  { to { clip-path: inset(0 0 0 0); } }
+@keyframes head { to { left: 100%; } }
+
+.plot__meta {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12vh;
+  display: flex;
+  gap: 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+.plot__pct { color: var(--fg); font-variant-numeric: tabular-nums; }
+
+.plot__stamp {
+  position: absolute;
+  right: 8vw;
+  top: 14vh;
+  padding: 0.5rem 1rem;
+  border: 3px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transform: rotate(-10deg) scale(2.4);
+  opacity: 0;
+}
+
+.plot--stamp .plot__stamp,
+.plot--open .plot__stamp {
+  animation: stamp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes stamp {
+  to { transform: rotate(-10deg) scale(1); opacity: 0.95; }
+}
+
+/* ---- Split text --------------------------------------------------------- */
+.sr__w { display: inline-block; white-space: nowrap; }
+.sr__sp { display: inline; white-space: normal; }
+.sr__c {
+  display: inline-block;
+  transform: translateY(110%) rotate(4deg);
+  opacity: 0;
+  transition: transform 0.9s var(--ease-out), opacity 0.4s ease;
+  transition-delay: calc(var(--d, 0s) + var(--i) * 0.028s);
+}
+
+.sr { display: inline-block; overflow: hidden; vertical-align: top; }
+.sr.is-in .sr__c { transform: none; opacity: 1; }
+
+.hero__line { padding: 0.02em 0; padding-right: 0.05em; }
+
+/* ---- Dimension line ----------------------------------------------------- */
+.dim { width: 100%; padding-top: 1rem; }
+
+.dim__line {
+  position: relative;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.9s var(--ease-out) 0.7s;
+}
+
+.dim.is-in .dim__line { transform: scaleX(1); }
+
+.dim__tick {
+  position: absolute;
+  top: -5px;
+  width: 1px;
+  height: 11px;
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+
+.dim__tick--l { left: 0; }
+.dim__tick--r { right: 0; }
+
+.dim__line::before,
+.dim__line::after {
+  content: '';
+  position: absolute;
+  top: -1.1rem;
+  width: 1px;
+  height: 1.4rem;
+  background: var(--accent-weak);
+}
+
+.dim__line::before { left: 0; }
+.dim__line::after { right: 0; }
+
+.dim__label {
+  white-space: nowrap;
+  position: absolute;
+  left: 50%;
+  top: -0.2rem;
+  transform: translate(-50%, -100%);
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--bg);
+  padding: 0 0.4rem;
+  opacity: 0;
+  transition: opacity 0.4s ease 1.3s;
+}
+
+.dim.is-in .dim__label { opacity: 1; }
+
+/* ---- Title block -------------------------------------------------------- */
+.tb {
+  position: fixed;
+  right: var(--gutter);
+  bottom: var(--gutter);
+  z-index: 40;
+  width: 200px;
+  border: 1px solid var(--fg);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.6s ease 1s, transform 0.6s var(--ease) 1s;
+}
+
+.app.is-plotted .tb { opacity: 1; transform: none; }
+
+.tb__row {
+  display: grid;
+  grid-template-columns: 3.4rem 1fr;
+  gap: 0.2rem 0.5rem;
+  align-items: baseline;
+  padding: 0.35rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.tb__row:last-child { border-bottom: 0; }
+.tb__row span { color: var(--fg-3); }
+.tb__row strong { font-weight: 600; color: var(--fg); font-variant-numeric: tabular-nums; }
+.tb__row em { grid-column: 2; font-style: normal; color: var(--fg-3); font-size: 0.56rem; }
+
+@media (max-width: 1279px) { .tb { display: none; } }
+
+/* ---- Terminal ----------------------------------------------------------- */
+.term {
+  border: 1px solid var(--rule-strong);
+  background: var(--sheet);
+  box-shadow: 10px 10px 0 color-mix(in srgb, var(--fg) 8%, transparent);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.6;
+}
+
+.term__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.term__bar > span:not(.term__title) {
+  width: 9px; height: 9px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+}
+
+.term__title {
+  margin-left: auto;
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  color: var(--fg-3);
+}
+
+.term__body {
+  margin: 0;
+  padding: 0.9rem 1rem 1rem;
+  min-height: 20rem;
+  max-height: 24rem;
+  overflow: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--fg-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.term__line { animation: term-in 0.15s ease both; }
+.term__line--cmd { color: var(--fg); }
+.term__line--warn { color: var(--accent); }
+.term__line--ok { color: var(--fg); }
+.term__line--ok::before { content: ''; }
+.term__ps { color: var(--fg-3); }
+
+.term__caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: blink 1s steps(2) infinite;
+}
+
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes term-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---- Tilt --------------------------------------------------------------- */
+.tilt {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.5s var(--ease);
+  will-change: transform;
+}
+
+.tilt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at var(--gx, 50%) var(--gy, 50%), color-mix(in srgb, var(--fg) 9%, transparent), transparent 55%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.tilt:hover::after { opacity: 1; }
+
+/* ---- Magnetic ----------------------------------------------------------- */
+.magnet {
+  display: inline-block;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ---- Word reveal -------------------------------------------------------- */
+.wr { --p: 0; }
+.wr__w {
+  opacity: clamp(0.18, calc(var(--p) * var(--n) * 1.15 - var(--i)), 1);
+  transition: opacity 0.1s linear;
+}
+
+.wr--enter .wr__w {
+  opacity: 0.12;
+  transition: opacity 0.6s ease;
+  transition-delay: calc(0.35s + var(--i) * 0.035s);
+}
+
+.wr--enter.is-in .wr__w { opacity: 1; }
+
+/* ---- Theme view transition ---------------------------------------------- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+
+/* ---- Reduced motion ----------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .sr__c { transform: none; opacity: 1; transition: none; }
+  .dim__line { transform: none; transition: none; }
+  .dim__label { opacity: 1; transition: none; }
+  .wr__w, .wr--enter .wr__w { opacity: 1; transition: none; }
+  .tilt { transform: none; }
+  .term__caret, .term__line { animation: none; }
+  .plot__ink, .plot__head, .plot__stamp { animation: none; }
+  .shader { transition: none; }
+}

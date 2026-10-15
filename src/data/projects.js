@@ -116,13 +116,13 @@ export const PROJECTS = [
   {
     id: 'portfolio',
     title: 'This site',
-    tagline: 'The dossier you are reading.',
+    tagline: 'A drawing set, not a web page.',
     year: '2024 – 2026',
     kind: 'Static site',
-    techs: ['React', 'CSS', 'GitHub Pages'],
+    techs: ['React', 'WebGL', 'GLSL', 'Canvas', 'CSS'],
     repo: 'https://github.com/Lyquifyy/Portfolio',
     description:
-      'Rebuilt three times as my taste changed. This version drops the glass and the particles for type, rules, and a command palette. It pulls my latest GitHub activity live.',
-    highlights: ['Command palette (⌘K)', 'Live GitHub panel with offline fallback', 'Light and dark, system-aware'],
+      'Rebuilt four times as my taste changed. This version is drawn like a sheet set: a hand-written WebGL contour field behind everything, a CAD crosshair that object-snaps to links, a live title block, dimension lines that measure the real layout, a wireframe massing model you can orbit, and a scroll-driven rail of project sheets. No animation library. Press ⌘K.',
+    highlights: ['GLSL fragment shader background, no library', 'Object-snap cursor and live title block', 'Scroll-driven sheet rail and drawn timeline', 'Command palette, X-ray mode, view-transition theme flip'],
   },
 ];

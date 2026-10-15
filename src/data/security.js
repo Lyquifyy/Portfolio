@@ -42,3 +42,28 @@ export const SECURITY = [
     highlights: ['Lab-environment reconnaissance and enumeration', 'Attack-vector identification from captures'],
   },
 ];
+
+// Session replayed in the Security chapter. Every command maps to something
+// in the entries above: the NAS over Tailscale, NCL traffic and hash work,
+// and CS 352 reconnaissance in a lab range.
+export const SESSION = [
+  { type: 'cmd',  text: 'tailscale status' },
+  { type: 'out',  text: '100.64.0.2   nas          linux   active; direct' },
+  { type: 'out',  text: '100.64.0.5   macbook      macOS   -' },
+  { type: 'cmd',  text: 'showmount -e nas' },
+  { type: 'out',  text: 'Export list for nas:' },
+  { type: 'out',  text: '/srv/nas/media   100.64.0.0/10' },
+  { type: 'out',  text: '/srv/nas/backup  100.64.0.0/10' },
+  { type: 'ok',   text: '[+] 3.6T ext4, automount via fstab, no public ports' },
+  { type: 'cmd',  text: 'nmap -sV -T4 10.10.0.0/24' },
+  { type: 'out',  text: 'Nmap scan report for lab-01 (10.10.0.12)' },
+  { type: 'out',  text: '22/tcp   open  ssh    OpenSSH 8.9p1' },
+  { type: 'out',  text: '80/tcp   open  http   Apache httpd 2.4.52' },
+  { type: 'cmd',  text: 'tshark -r ncl_round2.pcap -Y "http.request" -T fields -e http.host -e http.request.uri | head' },
+  { type: 'warn', text: '[!] 14 requests → /admin/login.php from one source in 3 s' },
+  { type: 'cmd',  text: 'john --wordlist=rockyou.txt --format=raw-md5 hashes.txt' },
+  { type: 'out',  text: 'Loaded 12 password hashes with no different salts' },
+  { type: 'ok',   text: '[+] 9/12 cracked in 00:00:41' },
+  { type: 'cmd',  text: 'hashcat -m 0 -a 0 remaining.txt rockyou.txt -r best64.rule' },
+  { type: 'ok',   text: '[+] Recovered 3/3. Writeup → ncl-fall-2025.md' },
+];
