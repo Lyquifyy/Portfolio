@@ -213,8 +213,8 @@ details[open] > summary .details-toggle::after { transform: rotate(0deg); }
 /* The person comes after the proof. */
 .about-section { padding-block: 120px; display: grid; grid-template-columns: .85fr 1.15fr; gap: 12%; align-items: center; }
 .portrait { max-width: 380px; }
-.portrait__frame { display: block; overflow: hidden; --open: clamp(0, calc(var(--p, 0) * 2.4), 1); clip-path: inset(0 0 calc((1 - var(--open)) * 100%) 0); }
-.portrait img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: center 40%; filter: saturate(.7); }
+.portrait__frame { display: block; --l: clamp(0, calc(var(--p, 0) * 2.4), 1); opacity: calc(.04 + .96 * var(--l)); transform: translate3d(0, calc((1 - var(--l)) * 28px), 0); }
+.portrait img { display: block; width: 100%; height: auto; filter: saturate(.7); }
 .portrait figcaption { font-size: 10px; color: var(--muted); margin-top: 14px; }
 .about-copy h2 { font-size: clamp(36px, 3.7vw, 51px); }
 .about-copy > p { font-size: 14px; color: var(--muted); line-height: 1.9; margin-top: 22px; max-width: 51ch; }
@@ -296,7 +296,6 @@ details[open] > summary .details-toggle::after { transform: rotate(0deg); }
   .about-section { gap: 40px; padding-block: 80px; grid-template-columns: .8fr 1.2fr; align-items: start; }
   .about-copy h2 { font-size: 35px; }
   .about-copy > p { font-size: 13px; }
-  .portrait img { aspect-ratio: 3 / 4; }
   .contact-section { padding-top: 65px; }
   .contact-arrow { width: 80px; height: 80px; }
   .contact-arrow .arrow-icon { width: 36px; height: 36px; }
@@ -380,7 +379,7 @@ details[open] > summary .details-toggle::after { transform: rotate(0deg); }
   .job__stack { font-size: 9px; }
   .about-section { grid-template-columns: 1fr; gap: 35px; padding-block: 64px; }
   .portrait { max-width: none; }
-  .portrait img { aspect-ratio: 1; max-height: 400px; object-position: center 35%; }
+  .portrait { max-width: 360px; }
   .portrait figcaption { font-size: 9px; }
   .about-copy h2 { font-size: 39px; }
   .about-copy > p { font-size: 13px; }
@@ -534,7 +533,7 @@ body.on-blue .rail { --rail-ink: #fff; --rail-line: #ffffff40; --rail-bg: var(--
   .scrub__i, .title__in, .words .w, .architecture-step { --l: 1; }
   .rise, .stage-in, .title__in, .words .w, .architecture-step { opacity: 1; transform: none; }
   .hero__copy, .system-sketch__drawing, .preview-slot, .project-feature__visual > .project-stage { transform: none; opacity: 1; }
-  .portrait__frame { clip-path: none; }
+  .portrait__frame { opacity: 1; transform: none; }
   .sketch-layer { transform: translateY(var(--layer-y)); }
   .contact-arrow .arrow-icon { transform: none; }
   .site-header { transition: none; }
