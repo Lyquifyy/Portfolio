@@ -11,6 +11,13 @@ import { prefersReducedMotion } from '../hooks/useReducedMotion';
 const DEPTH = 0.55;
 const W = 0.42; // stroke width
 
+// a loose shell of points that drifts around the glyphs
+const POINTS = Array.from({ length: 90 }, (_, i) => {
+  const u = (i + 0.5) / 90, phi = Math.acos(1 - 2 * u), th = Math.PI * (3 - Math.sqrt(5)) * i;
+  const r = 3.3 + ((i * 7919) % 100) / 100 * 1.4;
+  return { x: r * Math.sin(phi) * Math.cos(th), y: r * Math.sin(phi) * Math.sin(th) * 0.75, z: r * Math.cos(phi), s: 1 + ((i * 104729) % 100) / 100 * 1.6 };
+});
+
 // A stroke from a to b (in XY) becomes a 4-corner face; mitres are left
 // square so the corners read as drawn, not polished.
 function stroke(a, b, w = W) {
@@ -63,7 +70,7 @@ export default function Wireframe() {
     const mo = new MutationObserver(readCol);
     mo.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
 
-    let yaw = -0.5, pitch = 0.22;
+    let yaw = -0.5, pitch = 0.22, cloud = 0;
     let vyaw = 0, vpitch = 0;
     let dragging = false, lx = 0, ly = 0;
     let raf = 0, running = true;
@@ -76,7 +83,7 @@ export default function Wireframe() {
       let Y = y * cx - Z * sx;
       Z = y * sx + Z * cx;
       const dist = 8.5;
-      const f = (Math.min(w, h) * 1.15) / (dist + Z);
+      const f = (Math.min(w, h) * 1.3) / (dist + Z);
       return [w / 2 + X * f, h / 2 - Y * f, Z];
     };
 
@@ -95,6 +102,7 @@ export default function Wireframe() {
     const draw = () => {
       if (!running) return;
       raf = requestAnimationFrame(draw);
+      if (!reduced) cloud += 0.0012;
       if (!reduced && !dragging) {
         yaw += 0.0045 + vyaw; pitch += vpitch;
         vyaw *= 0.95; vpitch *= 0.9;
@@ -103,6 +111,18 @@ export default function Wireframe() {
       ctx.clearRect(0, 0, w, h);
       ctx.lineJoin = 'round';
       ctx.lineCap = 'round';
+
+      // the point cloud turns on its own axis, slower than the glyphs
+      const cc = Math.cos(cloud), sc = Math.sin(cloud);
+      ctx.fillStyle = col.accent;
+      POINTS.forEach(p => {
+        const x = p.x * cc - p.z * sc, z = p.x * sc + p.z * cc;
+        const q = project(x, p.y, z);
+        ctx.globalAlpha = 0.12 + 0.5 * (1 - (q[2] + 4.7) / 9.4);
+        ctx.beginPath();
+        ctx.arc(q[0], q[1], p.s, 0, Math.PI * 2);
+        ctx.fill();
+      });
 
       GLYPHS.forEach(g => {
         const colour = g.accent ? col.accent : col.fg;

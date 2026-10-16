@@ -374,19 +374,12 @@ p { margin: 0; }
   z-index: 1;
   width: 100%;
   aspect-ratio: 1;
-  max-height: 520px;
+  max-height: 560px;
 }
 
 .hero__model .wire { width: 100%; height: 100%; display: block; touch-action: none; cursor: grab; }
 .hero__model .wire:active { cursor: grabbing; }
 
-.hero__hint {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  font-size: 0.8rem;
-  color: var(--fg-3);
-}
 
 /* --------------------------------------------------------------------------
    6. Profile
@@ -981,6 +974,8 @@ p { margin: 0; }
    -------------------------------------------------------------------------- */
 
 .colophon {
+  position: relative;
+  z-index: 1;
   max-width: var(--shell);
   margin: 4rem auto 0;
   padding: 1.5rem var(--gutter) 2.5rem;
@@ -1092,23 +1087,44 @@ p { margin: 0; }
    15a. Section-specific pieces
    -------------------------------------------------------------------------- */
 
-/* prose wired to the work */
+/* prose wired to the work: plain until hovered */
 .wired {
   background: none;
   border: 0;
   padding: 0;
   font: inherit;
-  color: inherit;
+  color: var(--fg);
   cursor: pointer;
-  background-image: linear-gradient(var(--accent), var(--accent));
-  background-size: 100% 1px;
-  background-repeat: no-repeat;
-  background-position: 0 100%;
-  transition: color 0.2s ease;
+  text-decoration: underline dotted;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 0.2em;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
 }
 
 .wired:hover,
-.wired:focus-visible { color: var(--accent); }
+.wired:focus-visible { color: var(--accent); text-decoration-color: var(--accent); text-decoration-style: solid; }
+
+/* ambient glow */
+.glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.glow__b {
+  position: absolute;
+  left: 0; top: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent) 0%, transparent 62%);
+  filter: blur(70px);
+  opacity: 0.16;
+  will-change: transform;
+}
+
+body[data-theme='dark'] .glow__b { opacity: 0.17; mix-blend-mode: screen; }
+body:not([data-theme='dark']) .glow__b { opacity: 0.13; mix-blend-mode: multiply; }
 
 /* experience timeline */
 .tl { margin-bottom: 2.5rem; }

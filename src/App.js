@@ -10,6 +10,7 @@ import ChapterRail from './components/ChapterRail';
 import CommandPalette from './components/CommandPalette';
 import GitHubLive from './components/GitHubLive';
 
+import Glow from './fx/Glow';
 import Wireframe from './fx/Wireframe';
 import Timeline from './fx/Timeline';
 import { useFileMeta } from './hooks/useFileMeta';
@@ -357,6 +358,8 @@ export default function App() {
     <div className="app">
       <a className="skip" href="#profile">Skip to content</a>
 
+      <Glow />
+
 
       {/* ------------------------------------------------ Masthead bar */}
       <header className="masthead">
@@ -393,7 +396,6 @@ export default function App() {
             </div>
             <div className="hero__model reveal">
               <Wireframe />
-              <p className="hero__hint">Drag to orbit</p>
             </div>
           </div>
         </section>
@@ -632,7 +634,6 @@ export default function App() {
 
       <footer className="colophon">
         <p>© {YEAR} Zander Erwin</p>
-        <p><a href="https://github.com/Lyquifyy/Portfolio" target="_blank" rel="noopener noreferrer">Source</a></p>
       </footer>
 
       {openProjectData && (

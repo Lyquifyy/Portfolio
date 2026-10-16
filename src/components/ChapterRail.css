@@ -26,8 +26,8 @@
 .rail__line {
   position: absolute;
   left: 0;
-  top: 0.55rem;
-  bottom: 0.55rem;
+  top: var(--rail-top, 0.55rem);
+  height: var(--rail-height, calc(100% - 1.1rem));
   width: 1px;
   background: var(--rule);
 }
@@ -36,7 +36,7 @@
   position: absolute;
   left: 0; top: 0;
   width: 100%;
-  height: calc(var(--i, 0) / var(--n, 1) * 100%);
+  height: var(--rail-fill, 0px);
   background: var(--accent);
   transition: height 0.5s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -56,12 +56,12 @@
   transition: color 0.2s ease;
 }
 
-.rail__label {
-  position: relative;
-  padding-left: 1rem;
-}
+.rail__item { position: relative; }
 
-.rail__label::before {
+.rail__label { padding-left: 1rem; }
+
+/* the dash leaves the line at exactly the item's centre, same 1px weight */
+.rail__item::before {
   content: '';
   position: absolute;
   left: 0;
@@ -81,7 +81,7 @@
   color: var(--fg);
 }
 
-.rail__item--active .rail__label::before {
+.rail__item--active::before {
   width: 0.6rem;
 }
 
@@ -116,7 +116,7 @@
   }
 
   .rail__label { padding-left: 0; }
-  .rail__label::before { display: none; }
+  .rail__item::before { display: none; }
   .rail__line { display: none; }
   .rail__item--active { color: var(--fg); border-bottom: 1px solid var(--accent); }
 }
