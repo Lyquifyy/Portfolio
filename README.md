@@ -8,7 +8,7 @@ One page: intro, profile, experience, work, security, a panel that pulls recent 
 
 Everything in `src/fx/` is hand-written; there is no animation library.
 
-- `Wireframe` — a wireframe dumbbell on a 2D canvas with a hand-rolled perspective projection. Drag to orbit, with inertia.
+- `Wireframe` — a wireframe `</>` on a 2D canvas with a hand-rolled perspective projection. Drag to orbit, with inertia.
 - `ProjectSheet` — a card grows into a full-screen sheet (a FLIP transform) and closes back into place. Deep-linkable via `#p-<id>`.
 - `DineSensePulse` — live counts from DineSense's production database through `pulse()`, a count-only function callable with the publishable key.
 - `DynamicIsland` — a working recreation of Programmed's Live Activity: rest timer, Set done, +15s, Skip.

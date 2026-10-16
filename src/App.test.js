@@ -45,7 +45,7 @@ test('renders one card per project and every résumé download', () => {
 
 test('the canvas degrades when the context is unavailable', () => {
   renderApp();
-  expect(screen.getByRole('img', { name: /dumbbell/i })).toBeInTheDocument();
+  expect(screen.getByRole('img', { name: /code brackets/i })).toBeInTheDocument();
 });
 
 test('a project opens into a sheet and closes with Escape', async () => {

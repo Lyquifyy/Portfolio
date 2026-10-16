@@ -48,7 +48,7 @@ export default function Heatmap({ days }) {
       canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
-      const [r, g, b] = hexToRgb(cssColour('--accent', '#6d4ae8'));
+      const [r, g, b] = hexToRgb(cssColour('--accent', '#178a4e'));
       const [er, eg, eb] = hexToRgb(cssColour('--fg', '#16171a'));
       cells.forEach(c => {
         const x = c.col * (CELL + GAP), y = c.row * (CELL + GAP);
