@@ -25,10 +25,8 @@ export default function DineSensePulse() {
         <div className="pulse__cell"><strong>{n(p?.picks ?? 0)}</strong><span>picks recorded in the pilot</span></div>
       </div>
       <p className="pulse__note">
-        {p?.picks_7d ? `${p.picks_7d} pick${p.picks_7d === 1 ? '' : 's'} this week, the last one ${daysAgo(p.last_pick_day)}. ` : ''}
-        {p?.stale
-          ? 'Showing the last reading; the database did not answer just now.'
-          : 'Read live from the production database through a function that returns counts and nothing else. Orders stay unreadable; their number does not.'}
+        {p?.picks_7d ? `${p.picks_7d} this week, the last ${daysAgo(p.last_pick_day)}. ` : ''}
+        {p?.stale ? 'Last reading; the database did not answer.' : 'Live from the production database, counts only.'}
       </p>
     </div>
   );

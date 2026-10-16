@@ -105,9 +105,7 @@ export default function DynamicIsland() {
           <strong>{new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</strong>
         </div>
       </div>
-      <p className="di__caption">
-        The Live Activity as it runs on the phone: rest counts down on the lock screen and in the Dynamic Island, with Set done, +15s and Skip reachable without unlocking. Tap the island to collapse it.
-      </p>
+      <p className="di__caption">The Live Activity as it runs on the lock screen. Tap the island to collapse it.</p>
     </div>
   );
 }

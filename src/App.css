@@ -1125,11 +1125,10 @@ p { margin: 0; }
   font-size: 0.66rem;
   color: var(--fg-3);
 }
-.tl__caption { margin-top: 0.6rem; font-size: 0.86rem; color: var(--fg-2); min-height: 1.4em; }
+.tl__caption { margin-top: 0.6rem; font-size: 0.86rem; color: var(--fg-2); height: 1.4em; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 
-.exp__item { transition: background 0.25s ease; }
-.exp__item.is-active .exp__role { color: var(--accent); }
-.exp__item.is-active .exp__when { color: var(--fg); }
+.exp__item[data-active] .exp__role { color: var(--accent); }
+.exp__item[data-active] .exp__when { color: var(--fg); }
 
 /* résumé facts */
 .facts-line { font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-3); }

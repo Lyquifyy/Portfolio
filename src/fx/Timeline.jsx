@@ -41,6 +41,7 @@ export default function Timeline({ jobs, active, onActive }) {
             x={s.x * 1000} y={TOP + i * (LANE + GAP)} width={Math.max(4, s.w * 1000)} height={LANE}
             className={`tl__bar${active === i ? ' is-active' : ''}${active !== null && active !== i ? ' is-dim' : ''}`}
             onMouseEnter={() => onActive(i)}
+            onMouseLeave={() => onActive(null)}
           />
         ))}
       </svg>
@@ -48,9 +49,7 @@ export default function Timeline({ jobs, active, onActive }) {
         {model.years.map(y => <span key={y.label} style={{ left: `${y.x * 100}%` }}>{y.label}</span>)}
       </div>
       <p className="tl__caption" aria-live="polite">
-        {active === null
-          ? `${Math.round(model.months / 12 * 10) / 10} years, four roles, one overlap with school throughout.`
-          : `${jobs[active].role}, ${jobs[active].company} · ${jobs[active].start} – ${jobs[active].end}`}
+        {active === null ? '' : `${jobs[active].role}, ${jobs[active].company} · ${jobs[active].start} – ${jobs[active].end}`}
       </p>
     </div>
   );

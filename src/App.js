@@ -117,7 +117,7 @@ function WichitaClock() {
   return (
     <p className="clock">
       <span className={`clock__dot${awake ? ' is-awake' : ''}`} aria-hidden="true" />
-      It is {time} in Wichita{awake ? '' : ', so a reply will come in the morning'}.
+      {time} in Wichita
     </p>
   );
 }
@@ -180,7 +180,6 @@ function Skills({ onOpen, onJob }) {
         </div>
       ))}
       <div className="skills__used" aria-live="polite">
-        {!current && <p>Pick a skill to see where it was used.</p>}
         {current && (current.projects.length + current.jobs.length === 0) && (
           <p><strong>{current.name}</strong> is on the résumé but not attached to a project here.</p>
         )}
@@ -442,7 +441,8 @@ export default function App() {
           <ol className="exp">
             {EXPERIENCE.map((job, i) => (
               <li
-                className={`exp__item reveal${activeJob === i ? ' is-active' : ''}`}
+                className="exp__item reveal"
+                data-active={activeJob === i || undefined}
                 key={job.company}
                 style={{ transitionDelay: `${i * 0.06}s` }}
                 onMouseEnter={() => setActiveJob(i)}
@@ -475,7 +475,7 @@ export default function App() {
               <div className="rail-hud" aria-hidden="true">
                 <span className="rail-hud__num">{i + 1} of {PROJECTS.length}</span>
                 <span className="rail-hud__bar"><i /></span>
-                <span className="rail-hud__hint">{hoverCard ? `Open ${hoverCard}` : 'Click a card to open it'}</span>
+                {hoverCard && <span className="rail-hud__hint">{hoverCard}</span>}
               </div>
             )}
           >
@@ -528,8 +528,7 @@ export default function App() {
           <div className="sec__top reveal">
             <Terminal script={SESSION} />
             <p className="sec__note">
-              A replay of real sessions: the NAS over a mesh VPN, the lab range from CS&nbsp;352, and the
-              traffic and hash work from the National Cyber League. Hostnames and addresses are from the lab.
+              Replayed from real sessions: the NAS over a mesh VPN, the CS&nbsp;352 lab range, and National Cyber League traffic and hash work.
             </p>
           </div>
           <div className="sec">
