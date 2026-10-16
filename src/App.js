@@ -21,8 +21,8 @@ const ASSET = process.env.PUBLIC_URL;
 const SOFTWARE_RESUME = RESUMES.find(resume => resume.id === 'software');
 const NAV = [{ id: 'projects', label: 'Work' }, { id: 'experience', label: 'Experience' }, { id: 'skills', label: 'Skills' }, { id: 'about', label: 'About' }];
 const STATIONS = [{ id: 'top', label: 'Intro' }, { id: 'projects', label: 'Work' }, { id: 'experience', label: 'Experience' }, { id: 'skills', label: 'Skills' }, { id: 'about', label: 'About' }, { id: 'contact', label: 'Contact' }];
-// The part of the toolkit in daily use at PEC.
-const DAILY = new Set(['C#', 'TypeScript', '.NET / ASP.NET Core', 'Revit API', 'Autodesk Platform Services (ACC, Design Automation, Forma)', 'Azure', 'Microsoft Entra ID', 'PostgreSQL (Supabase)', 'SQL', 'GitHub']);
+// Reference designators for the skill modules on the schematic board.
+const REF = { Languages: 'LANG', Frameworks: 'FWK', Data: 'DATA', 'Tools & platforms': 'PLAT', 'Security & networking': 'SEC' };
 const projectById = id => PROJECTS.find(project => project.id === id);
 const merge = (...refs) => (node) => refs.forEach(r => { if (typeof r === 'function') r(node); else if (r) r.current = node; });
 
@@ -251,14 +251,17 @@ export default function App() {
       <section className="skills-section page-width" id="skills" aria-labelledby="skills-title">
         <header className="section-heading">
           <Title id="skills-title" lines={['Tools of', { text: 'the trade.', muted: true }]} />
-          <Scrub as="p" end={['top', 0.6]}><span className="scrub__i rise" style={{ '--i': 0 }}>Everything on the résumé, grouped. <br />Marked where it is in daily use.</span></Scrub>
+          <Scrub as="p" end={['top', 0.6]}><span className="scrub__i rise" style={{ '--i': 0 }}>Every tool on the résumé, wired to its group. <br />One board, nothing to click.</span></Scrub>
         </header>
-        <Scrub className="skills-grid" n={PROFILE.skills.length} k={0.6} start={['top', 0.92]} end={['top', 0.45]}>
-          {PROFILE.skills.map((group, gi) => <div className="skills-group scrub__i rise" key={group.group} style={{ '--i': gi }}>
-            <h3>{group.group}</h3>
-            <ul>{group.items.map(item => <li key={item} className={DAILY.has(item) ? 'is-daily' : undefined}>{item}</li>)}</ul>
-          </div>)}
-          <p className="skills-legend scrub__i rise" style={{ '--i': PROFILE.skills.length - 1 }}><i aria-hidden="true" />In daily use at PEC</p>
+        <Scrub className="board" n={PROFILE.skills.length} k={0.6} start={['top', 0.92]} end={['top', 0.4]}>
+          <div className="board__bus" aria-hidden="true"><i className="board__line" /><i className="board__packet" /></div>
+          <div className="board__grid">
+            {PROFILE.skills.map((group, gi) => <div className="module scrub__i rise" key={group.group} style={{ '--i': gi }}>
+              <i className="module__tap" aria-hidden="true" />
+              <div className="module__head"><h3>{group.group}</h3><span>{REF[group.group]}</span></div>
+              <ul>{group.items.map(item => <li key={item}>{item}</li>)}</ul>
+            </div>)}
+          </div>
         </Scrub>
       </section>
 

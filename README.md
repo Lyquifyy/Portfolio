@@ -29,7 +29,7 @@ Nothing on the page waits for a click. One scroll loop (`src/motion/scroll.js`) 
 - The hero stack assembles on load, then requests cycle through it on their own; resting on a layer selects it, the drawing leans towards the pointer, and the layers drift apart as the intro scrolls away.
 - The DineSense screens cycle, the Programmed Live Activity works through a session, and the ExpenseTracker trace loops, all while on screen. Touching any of them takes over for a while, then the demo resumes.
 - A rail down the left gutter maps the page as a request path: a packet rides it with the scroll and each section lights as a station.
-- The header tucks away on the way down and returns as paper once the intro has passed. Skills are a grouped list, readable at rest, with the ones in daily use marked.
+- The header tucks away on the way down and returns as paper once the intro has passed. Skills sit on a schematic board: five modules wired to a bus, every tool listed the same way, readable at rest.
 
 `prefers-reduced-motion` turns all of it off and leaves every block at its final state.
 

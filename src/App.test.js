@@ -28,8 +28,8 @@ test('every skill on the résumé is readable at rest, grouped', () => {
   render(<App />);
   expect(screen.getByRole('heading', { name: 'Tools of the trade.' })).toBeInTheDocument();
   expect(screen.getByText('Languages')).toBeInTheDocument();
-  expect(screen.getByText('Revit API')).toHaveClass('is-daily');
-  expect(screen.getByText('Hashcat')).not.toHaveClass('is-daily');
+  expect(screen.getByText('Revit API')).toBeInTheDocument();
+  expect(document.querySelectorAll('.module')).toHaveLength(5);
 });
 
 test('software stack choices update the explanation and accessible diagram', () => {
