@@ -10,8 +10,9 @@ import ChapterRail from './components/ChapterRail';
 import CommandPalette from './components/CommandPalette';
 import GitHubLive from './components/GitHubLive';
 
-import Fluid from './fx/Fluid';
 import Wireframe from './fx/Wireframe';
+import Timeline from './fx/Timeline';
+import { useFileMeta } from './hooks/useFileMeta';
 import Terminal from './fx/Terminal';
 import SheetRail from './fx/SheetRail';
 import ProjectSheet from './fx/ProjectSheet';
@@ -64,6 +65,64 @@ function TechList({ items, className = '' }) {
     </p>
   );
 }
+
+/* ---- Prose wired to the work it mentions ---------------------------------- */
+
+const WIRES = [
+  ...PROJECTS.map(p => ({ match: p.title, kind: 'project', id: p.id })),
+  { match: 'National Cyber League', kind: 'section', id: 'security' },
+  { match: 'PEC', kind: 'job', id: 0 },
+  { match: 'Flint Hills Resources', kind: 'job', id: 1 },
+  { match: 'Integra Technologies', kind: 'job', id: 2 },
+];
+const WIRE_RE = new RegExp(`(${WIRES.map(w => w.match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).sort((a, b) => b.length - a.length).join('|')})`, 'g');
+
+function Wired({ text, onProject, onJob, onSection }) {
+  const parts = text.split(WIRE_RE);
+  return parts.map((part, i) => {
+    const w = WIRES.find(x => x.match === part);
+    if (!w) return <React.Fragment key={i}>{part}</React.Fragment>;
+    const go = (e) => {
+      if (w.kind === 'project') onProject(w.id, e.currentTarget);
+      else if (w.kind === 'job') onJob(w.id);
+      else onSection(w.id);
+    };
+    return <button type="button" key={i} className="wired" onClick={go}>{part}</button>;
+  });
+}
+
+/* ---- Résumé file facts ---------------------------------------------------- */
+
+function FileFacts({ file }) {
+  const meta = useFileMeta(file);
+  if (!meta || (!meta.kb && !meta.updated)) return <p className="facts-line">PDF</p>;
+  return (
+    <p className="facts-line">
+      PDF{meta.kb ? ` · ${meta.kb} KB` : ''}{meta.updated ? ` · published ${meta.updated.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
+    </p>
+  );
+}
+
+/* ---- Local time where the reply comes from -------------------------------- */
+
+function WichitaClock() {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(id);
+  }, []);
+  const time = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }).format(now);
+  const hour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'America/Chicago' }).format(now));
+  const awake = hour >= 8 && hour < 23;
+  return (
+    <p className="clock">
+      <span className={`clock__dot${awake ? ' is-awake' : ''}`} aria-hidden="true" />
+      It is {time} in Wichita{awake ? '' : ', so a reply will come in the morning'}.
+    </p>
+  );
+}
+
+const horizonMonths = (h) => { const m = h.match(/(\d+)/); return m ? Number(m[1]) : 2; };
 
 /* ---- Skills cross-referenced with the work that used them ------------------ */
 
@@ -151,6 +210,8 @@ export default function App() {
   const [formStatus, setFormStatus] = useState('idle');
   const [copied, setCopied] = useState(false);
   const [xray, setXray] = useState(false);
+  const [activeJob, setActiveJob] = useState(null);
+  const [hoverCard, setHoverCard] = useState(null);
   const [open, setOpen] = useState(() => {
     const m = typeof window !== 'undefined' && window.location.hash.match(/^#p-([a-z0-9-]+)$/);
     return m && PROJECTS.some(p => p.id === m[1]) ? { id: m[1], from: null } : null;
@@ -165,6 +226,12 @@ export default function App() {
     setOpen({ id, from: from ? { left: from.left, top: from.top, width: from.width, height: from.height } : null });
     try { window.history.replaceState(null, '', `#p-${id}`); } catch {}
   }, []);
+
+  const focusJob = useCallback((i) => {
+    setActiveJob(i);
+    scrollTo('experience');
+    setTimeout(() => setActiveJob(null), 4000);
+  }, [scrollTo]);
 
   const closeProject = useCallback(() => {
     setOpen(null);
@@ -291,7 +358,6 @@ export default function App() {
     <div className="app">
       <a className="skip" href="#profile">Skip to content</a>
 
-      <Fluid />
 
       {/* ------------------------------------------------ Masthead bar */}
       <header className="masthead">
@@ -337,7 +403,9 @@ export default function App() {
         <Chapter id="profile" title="Profile">
           <div className="split">
             <div className="prose">
-              {PROFILE.about.map((p, i) => <p key={i} className="reveal">{p}</p>)}
+              {PROFILE.about.map((p, i) => (
+                <p key={i} className="reveal"><Wired text={p} onProject={openProject} onJob={focusJob} onSection={scrollTo} /></p>
+              ))}
               <dl className="edu reveal">
                 {PROFILE.education.map(e => (
                   <div key={e.degree}>
@@ -368,9 +436,18 @@ export default function App() {
 
         {/* ------------------------------------------------ Experience */}
         <Chapter id="experience" title="Experience">
+          <div className="reveal">
+            <Timeline jobs={EXPERIENCE} active={activeJob} onActive={setActiveJob} />
+          </div>
           <ol className="exp">
             {EXPERIENCE.map((job, i) => (
-              <li className="exp__item reveal" key={job.company} style={{ transitionDelay: `${i * 0.06}s` }}>
+              <li
+                className={`exp__item reveal${activeJob === i ? ' is-active' : ''}`}
+                key={job.company}
+                style={{ transitionDelay: `${i * 0.06}s` }}
+                onMouseEnter={() => setActiveJob(i)}
+                onMouseLeave={() => setActiveJob(null)}
+              >
                 <p className="exp__when">{job.start} – {job.end}</p>
                 <div className="exp__body">
                   <h3 className="exp__role">{job.role}</h3>
@@ -398,12 +475,17 @@ export default function App() {
               <div className="rail-hud" aria-hidden="true">
                 <span className="rail-hud__num">{i + 1} of {PROJECTS.length}</span>
                 <span className="rail-hud__bar"><i /></span>
-                <span className="rail-hud__hint">Click a card to open it</span>
+                <span className="rail-hud__hint">{hoverCard ? `Open ${hoverCard}` : 'Click a card to open it'}</span>
               </div>
             )}
           >
             {PROJECTS.map((p) => (
-              <article className={`sheet${DEMOS[p.id] ? ' sheet--live' : ''}`} key={p.id}>
+              <article
+                className={`sheet${DEMOS[p.id] ? ' sheet--live' : ''}`}
+                key={p.id}
+                onMouseEnter={() => setHoverCard(p.title)}
+                onMouseLeave={() => setHoverCard(null)}
+              >
                 <button
                   type="button"
                   className="sheet__hit"
@@ -479,6 +561,7 @@ export default function App() {
               <article className="resume reveal" key={r.id} style={{ transitionDelay: `${i * 0.06}s` }}>
                 <h3 className="resume__title">{r.title}</h3>
                 <p className="resume__summary">{r.summary}</p>
+                <FileFacts file={r.file} />
                 <a className="btn" href={r.file} download>Download PDF</a>
               </article>
             ))}
@@ -495,7 +578,10 @@ export default function App() {
                   <p className="backlog__desc">{b.description}</p>
                   <TechList items={b.techs} />
                 </div>
-                <span className="backlog__horizon">{b.horizon}</span>
+                <span className="backlog__horizon">
+                  {b.horizon}
+                  <span className="gantt" aria-hidden="true"><i style={{ width: `${Math.min(100, horizonMonths(b.horizon) / 12 * 100)}%` }} /></span>
+                </span>
               </li>
             ))}
           </ol>
@@ -506,6 +592,7 @@ export default function App() {
           <div className="split split--contact">
             <div className="reveal">
               <p className="contact__lede">Email is fastest. I answer within a day or two.</p>
+              <WichitaClock />
               <a className="contact__email" href={`mailto:${email}`}>{email}</a>
               <div className="contact__row">
                 <button type="button" className="btn" onClick={copyEmail}>{copied ? 'Copied' : 'Copy address'}</button>

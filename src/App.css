@@ -1058,7 +1058,7 @@ p { margin: 0; }
   .exp__when { padding-top: 0; }
 
   .backlog__item { grid-template-columns: 1fr; }
-  .backlog__horizon { text-align: left; padding-top: 0; }
+  .backlog__horizon { text-align: left; padding-top: 0; max-width: 12rem; }
 
   .masthead__links { gap: 0.9rem; font-size: 0.8rem; }
   .masthead__name { display: none; }
@@ -1087,6 +1087,62 @@ p { margin: 0; }
   .colophon { flex-direction: column; gap: 0.5rem; }
   .sheet { width: 86vw; padding: 1.25rem; }
 }
+
+/* --------------------------------------------------------------------------
+   15a. Section-specific pieces
+   -------------------------------------------------------------------------- */
+
+/* prose wired to the work */
+.wired {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: color 0.2s ease;
+}
+
+.wired:hover,
+.wired:focus-visible { color: var(--accent); }
+
+/* experience timeline */
+.tl { margin-bottom: 2.5rem; }
+.tl__svg { display: block; width: 100%; height: auto; overflow: visible; }
+.tl__tick { stroke: var(--rule); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.tl__bar { fill: var(--accent); opacity: 0.7; cursor: pointer; transition: opacity 0.2s ease; }
+.tl__bar.is-active { opacity: 1; }
+.tl__bar.is-dim { opacity: 0.22; }
+.tl__years { position: relative; height: 1rem; margin-top: -0.9rem; }
+.tl__years span {
+  position: absolute;
+  transform: translateX(4px);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--fg-3);
+}
+.tl__caption { margin-top: 0.6rem; font-size: 0.86rem; color: var(--fg-2); min-height: 1.4em; }
+
+.exp__item { transition: background 0.25s ease; }
+.exp__item.is-active .exp__role { color: var(--accent); }
+.exp__item.is-active .exp__when { color: var(--fg); }
+
+/* résumé facts */
+.facts-line { font-family: var(--font-mono); font-size: 0.7rem; color: var(--fg-3); }
+
+/* backlog horizons */
+.backlog__horizon { display: grid; gap: 0.4rem; }
+.gantt { display: block; height: 3px; background: var(--rule); }
+.gantt i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.8s var(--ease); }
+
+/* contact clock */
+.clock { margin-top: 0.75rem; font-size: 0.9rem; color: var(--fg-2); display: flex; align-items: center; gap: 0.5rem; }
+.clock__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-3); }
+.clock__dot.is-awake { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
 
 /* --------------------------------------------------------------------------
    15b. Skills matrix
@@ -1186,7 +1242,7 @@ p { margin: 0; }
    -------------------------------------------------------------------------- */
 
 .sheet { cursor: pointer; transition: border-color 0.25s ease, transform 0.35s var(--ease); }
-.sheet:hover { border-color: var(--fg); transform: translateY(-4px); }
+.sheet:hover { border-color: var(--accent); transform: translateY(-4px); }
 
 .sheet__hit {
   position: absolute;
