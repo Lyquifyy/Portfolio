@@ -1,6 +1,6 @@
 *, *::before, *::after { box-sizing: border-box; }
 :root { color-scheme: light; }
-html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+html { scroll-padding-top: 100px; }
 body { margin: 0; background: #f6f7f9; color: #17202b; -webkit-font-smoothing: antialiased; }
 body, button, input, textarea { font-family: 'Manrope', sans-serif; }
 button, a { -webkit-tap-highlight-color: transparent; }
@@ -18,6 +18,5 @@ summary { list-style: none; }
 summary::-webkit-details-marker { display: none; }
 button:disabled { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }

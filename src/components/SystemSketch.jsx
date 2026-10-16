@@ -1,33 +1,51 @@
 import { useState } from 'react';
 import useRequestTrace from '../hooks/useRequestTrace';
+import useTilt from '../hooks/useTilt';
+import useProgress from '../motion/useProgress';
 
+/*
+ * The exploded software stack. It assembles on load, then requests cycle
+ * through it on their own. Resting the pointer on a layer or its label
+ * selects it; the whole drawing leans towards the pointer and the layers
+ * drift further apart as the intro scrolls away.
+ */
 const LAYERS = [
   { name: 'Interface', tools: 'React · SwiftUI', detail: 'Interfaces that make the complicated feel simple.', position: -108 },
   { name: 'Logic', tools: 'C# / .NET · TypeScript', detail: 'Business logic and integrations that do the heavy lifting.', position: 0 },
   { name: 'Data', tools: 'PostgreSQL · Oracle', detail: 'A dependable foundation, from schema to access control.', position: 108 },
 ];
+const SIGNALS = ['M90 121H62V229H90', 'M90 229H62V337H90', 'M90 337H62V229H90', 'M90 229H62V121H90'];
+const STEPS = ['Interface sends a request', 'Logic processes the request', 'Data returns a result', 'Logic prepares the response', 'Interface renders the result'];
 
 export default function SystemSketch() {
   const [selected, setSelected] = useState(1);
   const trace = useRequestTrace();
+  const tilt = useTilt({ max: 7 });
+  const progress = useProgress({ start: ['top', 0.3], end: ['bottom', 0] });
   const highlighted = trace.running ? trace.activeLayer : selected;
-  const signals = ['M90 121H62V229H90', 'M90 229H62V337H90', 'M90 337H62V229H90', 'M90 229H62V121H90'];
-  const steps = ['Interface sends a request', 'Logic processes the request', 'Data returns a result', 'Logic prepares the response', 'Interface renders the result'];
+
+  const setRefs = (node) => { trace.element.current = node; tilt.current = node; progress.current = node; };
+  const choose = (i) => { trace.stop(); setSelected(i); };
+
   return (
-    <figure className={`system-sketch${trace.running ? ' is-tracing' : ''}`} ref={trace.element}>
+    <figure className={`system-sketch${trace.running ? ' is-tracing' : ''}`} ref={setRefs}>
       <svg className="system-sketch__drawing" viewBox="0 0 600 540" role="img" aria-label={`An exploded software stack with the ${LAYERS[highlighted].name.toLowerCase()} layer highlighted`}>
         <defs>
           <pattern id="sketch-grid" width="28" height="28" patternUnits="userSpaceOnUse">
             <circle cx="1" cy="1" r="1" fill="currentColor" opacity=".18" />
           </pattern>
         </defs>
-        <rect width="600" height="540" fill="url(#sketch-grid)" />
         <g className="sketch-guides" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 7">
           <path d="M90 116V403 M290 20V512 M500 125V412" />
           <path d="M26 385L295 540 574 379 M26 167L295 12 574 167" />
         </g>
         {[2, 1, 0].map(i => (
-          <g key={i} className={`sketch-layer sketch-layer--${i}${highlighted === i ? ' is-selected' : ''}`} style={{ '--layer-y': `${LAYERS[i].position}px` }}>
+          <g
+            key={i}
+            className={`sketch-layer sketch-layer--${i}${highlighted === i ? ' is-selected' : ''}`}
+            style={{ '--layer-y': `${LAYERS[i].position}px`, '--depth': i - 1 }}
+            onPointerEnter={() => choose(i)}
+          >
             <path className="sketch-layer__edge" d="M90 245L290 360 500 239V223L290 343 90 229Z" />
             <path className="sketch-layer__face" d="M90 229L290 113 500 223 290 343Z" />
             <path className="sketch-layer__inset" d="M118 229L290 130 470 223 290 325Z" />
@@ -50,19 +68,24 @@ export default function SystemSketch() {
             <text className="sketch-label" x="548" y="228">{['UI', 'API', 'DB'][i]}</text>
           </g>
         ))}
-        {trace.running && trace.phase < 4 && <path key={trace.phase} className="sketch-signal" d={signals[trace.phase]} pathLength="1" fill="none" />}
+        {trace.running && trace.phase < 4 && <path key={trace.phase} className="sketch-signal" d={SIGNALS[trace.phase]} pathLength="1" fill="none" />}
       </svg>
       <figcaption>
         <div className="sketch-selector" role="group" aria-label="Explore the software stack">
-          {LAYERS.map((layer, i) => <button key={layer.name} type="button" aria-pressed={highlighted === i} onClick={() => { trace.stop(); setSelected(i); }}>{layer.name}</button>)}
+          {LAYERS.map((layer, i) => (
+            <button key={layer.name} type="button" aria-pressed={highlighted === i} onPointerEnter={() => choose(i)} onFocus={() => choose(i)} onClick={() => choose(i)}>{layer.name}</button>
+          ))}
         </div>
         <div className="sketch-explanation" aria-live={trace.running ? 'off' : 'polite'}>
           <p>{LAYERS[highlighted].detail}</p>
           <span>{LAYERS[highlighted].tools}</span>
         </div>
         <div className="trace-control">
-          <button type="button" onClick={trace.run} aria-label="Run a request through the software stack"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4 8 6-8 6Z" /></svg>{trace.running ? 'Restart request' : 'Run a request'}</button>
-          <span aria-hidden="true">{trace.running ? steps[trace.phase] : trace.hasRun ? 'Request complete. Pieces connected.' : 'Watch the pieces work together.'}</span>
+          <span className="trace-control__live" aria-hidden="true">
+            <i className={trace.running ? 'is-on' : ''} />
+            {trace.running ? STEPS[trace.phase] : trace.cycles ? `${trace.cycles} request${trace.cycles === 1 ? '' : 's'} completed · the next is on its way` : 'Requests run through the stack on their own.'}
+          </span>
+          <button type="button" onClick={trace.run} aria-label="Run a request through the software stack"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7 4 8 6-8 6Z" /></svg>Replay</button>
           <span className="sr-only" role="status">{trace.hasRun && !trace.running ? 'Request complete: interface, logic, data, and back.' : ''}</span>
         </div>
       </figcaption>

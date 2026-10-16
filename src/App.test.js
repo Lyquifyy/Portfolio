@@ -3,15 +3,18 @@ import App from './App';
 import WorkoutDemo from './components/WorkoutDemo';
 
 beforeAll(() => {
-  global.IntersectionObserver = class { observe() {} disconnect() {} };
+  global.IntersectionObserver = class { observe() {} unobserve() {} disconnect() {} };
+  global.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
+  window.scrollTo = () => {};
 });
 
 afterEach(() => { jest.useRealTimers(); });
 
 test('gives hiring teams a résumé, contact, and working section destinations', () => {
   render(<App />);
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('I make the pieces work together.');
+  expect(screen.getByRole('heading', { level: 1 })).toHaveAccessibleName('I make the pieces work together.');
   expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument();
+  expect(screen.getByRole('navigation', { name: 'Page sections' })).toBeInTheDocument();
   screen.getAllByRole('link').filter(link => link.getAttribute('href')?.startsWith('#')).forEach(link => {
     expect(document.getElementById(link.getAttribute('href').slice(1))).not.toBeNull();
   });
@@ -21,6 +24,11 @@ test('gives hiring teams a résumé, contact, and working section destinations',
   expect(screen.getByText('In development · Private repository')).toBeInTheDocument();
 });
 
+test('the ticker carries the stack and reads as one list', () => {
+  render(<App />);
+  expect(screen.getByLabelText(/C# \/ \.NET, Revit API/)).toBeInTheDocument();
+});
+
 test('software stack choices update the explanation and accessible diagram', () => {
   render(<App />);
   fireEvent.click(screen.getByRole('button', { name: 'Data', exact: true }));
@@ -28,6 +36,12 @@ test('software stack choices update the explanation and accessible diagram', () 
   expect(screen.getByRole('button', { name: 'Logic', exact: true })).toHaveAttribute('aria-pressed', 'false');
   expect(screen.getByRole('img', { name: /data layer highlighted/ })).toBeInTheDocument();
   expect(screen.getByText('PostgreSQL · Oracle')).toBeInTheDocument();
+});
+
+test('resting on a stack layer selects it without a click', () => {
+  render(<App />);
+  fireEvent.pointerEnter(screen.getByRole('button', { name: 'Interface', exact: true }));
+  expect(screen.getByRole('button', { name: 'Interface', exact: true })).toHaveAttribute('aria-pressed', 'true');
 });
 
 test('DineSense preview selection updates the real preview image', () => {

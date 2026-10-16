@@ -399,6 +399,9 @@ Log four sets, run a 90-second rest countdown between sets, pause/resume or skip
 
 ### Motion and preferences
 
+**Revision: motion runs on its own.** The page no longer waits for a click. A single scroll loop writes each block's progress to `--p`; headings rise word by word, prose reads in, stages and copy stagger, and everything scrubs in both directions. The stack's request pass, the DineSense screen cycle, the Programmed session and the ExpenseTracker trace all play while on screen and pause briefly when touched. A rail in the left gutter maps the page as a request path. Wheel input eases on fine pointers; touch, keyboard and the scrollbar stay native. The paragraphs below describe the per-piece timings that still apply.
+
+
 The headline reveals once over .8s. Stack layers assemble over 1.1s with .12s/.06s delays; face/stroke feedback takes .4s. Request connectors travel for .68s per phase. Screenshot changes take .55s, completed bulbs .35s, and rest-track updates .35s linear. Link arrows and controls use short .15–.25s transitions. These are finite explanations and local feedback, with no perpetual loop or added dependency.
 
 Reduced motion globally disables animation and transitions and preserves content, controls, and static layer positions. Forced colors maps status markers and the sketch to system colors. There is one light site theme, with the real dark product artifact inside it.
