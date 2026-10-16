@@ -15,15 +15,14 @@ import useInView from './hooks/useInView';
 import { prefersReducedMotion } from './hooks/useReducedMotion';
 import Title from './fx/Title';
 import Words from './fx/Words';
-import Ticker from './fx/Ticker';
 import SignalRail from './fx/SignalRail';
-import Magnet from './fx/Magnet';
 
 const ASSET = process.env.PUBLIC_URL;
 const SOFTWARE_RESUME = RESUMES.find(resume => resume.id === 'software');
-const NAV = [{ id: 'projects', label: 'Work' }, { id: 'experience', label: 'Experience' }, { id: 'about', label: 'About' }];
-const STATIONS = [{ id: 'top', label: 'Intro' }, { id: 'projects', label: 'Work' }, { id: 'experience', label: 'Experience' }, { id: 'about', label: 'About' }, { id: 'contact', label: 'Contact' }];
-const TICKER = ['C# / .NET', 'Revit API', 'Autodesk Platform Services', 'TypeScript', 'Azure', 'Supabase', 'PostgreSQL', 'React', 'SwiftUI', 'Node.js', 'Docker', 'Oracle', 'Entity Framework Core', 'Microsoft Entra ID', 'Linux'];
+const NAV = [{ id: 'projects', label: 'Work' }, { id: 'experience', label: 'Experience' }, { id: 'skills', label: 'Skills' }, { id: 'about', label: 'About' }];
+const STATIONS = [{ id: 'top', label: 'Intro' }, { id: 'projects', label: 'Work' }, { id: 'experience', label: 'Experience' }, { id: 'skills', label: 'Skills' }, { id: 'about', label: 'About' }, { id: 'contact', label: 'Contact' }];
+// The part of the toolkit in daily use at PEC.
+const DAILY = new Set(['C#', 'TypeScript', '.NET / ASP.NET Core', 'Revit API', 'Autodesk Platform Services (ACC, Design Automation, Forma)', 'Azure', 'Microsoft Entra ID', 'PostgreSQL (Supabase)', 'SQL', 'GitHub']);
 const projectById = id => PROJECTS.find(project => project.id === id);
 const merge = (...refs) => (node) => refs.forEach(r => { if (typeof r === 'function') r(node); else if (r) r.current = node; });
 
@@ -183,13 +182,12 @@ export default function App() {
 
   return <div className="portfolio">
     <a className="skip-link" href="#main">Skip to content</a>
-    <Magnet />
     <header className="site-header" ref={header}>
       <a className="identity" href="#top" aria-label="Zander Erwin, back to top" onClick={e => go(e, 'top')}><span className="identity__mark" aria-hidden="true">ze.</span><span>Zander Erwin<small>Software Engineer</small></span></a>
       <button className="menu-button" type="button" ref={menuButton} aria-expanded={menuOpen} aria-controls="primary-nav" onClick={() => setMenuOpen(value => !value)}>{menuOpen ? 'Close' : 'Menu'}<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" />{!menuOpen && <path d="M10 4v12" />}</svg></button>
       <nav id="primary-nav" className={`primary-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
         {NAV.map(item => <a key={item.id} href={`#${item.id}`} aria-current={active === item.id ? 'location' : undefined} onClick={e => go(e, item.id)}>{item.label}</a>)}
-        <a className="nav-contact btn-magnet" href="#contact" onClick={e => go(e, 'contact')}>Let’s talk<Arrow /></a>
+        <a className="nav-contact" href="#contact" onClick={e => go(e, 'contact')}>Let’s talk<Arrow /></a>
       </nav>
       <i className="site-header__progress" aria-hidden="true" />
     </header>
@@ -202,14 +200,12 @@ export default function App() {
           <div className="hero__copy">
             <Title as="h1" id="hero-title" load k={0.5} lines={['I make the', 'pieces work', { text: 'together.', accent: true }]} />
             <p className="load" style={{ '--i': 3 }}>I’m Zander, a software engineer connecting complex systems and building products from the first idea to the last detail.</p>
-            <div className="hero__actions load" style={{ '--i': 4 }}><a className="button button--light btn-magnet" href="#projects" onClick={e => go(e, 'projects')}>Explore my work<Arrow direction="down" /></a><a className="hero__resume" href={SOFTWARE_RESUME.file} target="_blank" rel="noopener noreferrer">Résumé <span>PDF</span><Arrow /></a></div>
+            <div className="hero__actions load" style={{ '--i': 4 }}><a className="button button--light" href="#projects" onClick={e => go(e, 'projects')}>Explore my work<Arrow direction="down" /></a><a className="hero__resume" href={SOFTWARE_RESUME.file} target="_blank" rel="noopener noreferrer">Résumé <span>PDF</span><Arrow /></a></div>
           </div>
           <SystemSketch />
         </div>
         <div className="hero__cue load" style={{ '--i': 6 }} aria-hidden="true"><i /><span>Scroll</span></div>
       </section>
-
-      <Ticker items={TICKER} />
 
       <section className="work-section page-width" id="projects" aria-labelledby="work-title">
         <header className="section-heading">
@@ -252,6 +248,20 @@ export default function App() {
         </Scrub>
       </div></section>
 
+      <section className="skills-section page-width" id="skills" aria-labelledby="skills-title">
+        <header className="section-heading">
+          <Title id="skills-title" lines={['Tools of', { text: 'the trade.', muted: true }]} />
+          <Scrub as="p" end={['top', 0.6]}><span className="scrub__i rise" style={{ '--i': 0 }}>Everything on the résumé, grouped. <br />Marked where it is in daily use.</span></Scrub>
+        </header>
+        <Scrub className="skills-grid" n={PROFILE.skills.length} k={0.6} start={['top', 0.92]} end={['top', 0.45]}>
+          {PROFILE.skills.map((group, gi) => <div className="skills-group scrub__i rise" key={group.group} style={{ '--i': gi }}>
+            <h3>{group.group}</h3>
+            <ul>{group.items.map(item => <li key={item} className={DAILY.has(item) ? 'is-daily' : undefined}>{item}</li>)}</ul>
+          </div>)}
+          <p className="skills-legend scrub__i rise" style={{ '--i': PROFILE.skills.length - 1 }}><i aria-hidden="true" />In daily use at PEC</p>
+        </Scrub>
+      </section>
+
       <section className="about-section page-width" id="about" aria-labelledby="about-title">
         <figure className="portrait" ref={portraitRef}><span className="portrait__frame"><img src={portrait} alt="Zander Erwin" width="426" height="640" loading="lazy" /></span><figcaption>Based in Wichita. Curious everywhere.</figcaption></figure>
         <div className="about-copy">
@@ -268,13 +278,13 @@ export default function App() {
       <section className="contact-section" id="contact" aria-labelledby="contact-title" ref={contactRef}><div className="page-width">
         <div className="contact-heading">
           <Title id="contact-title" lines={['Good things start', 'with a conversation.']} k={0.6} />
-          <a className="contact-arrow btn-magnet" href={`mailto:${PROFILE.email}`} aria-label="Email Zander"><Arrow /></a>
+          <a className="contact-arrow" href={`mailto:${PROFILE.email}`} aria-label="Email Zander"><Arrow /></a>
         </div>
         <Scrub className="contact-bottom" n={4} k={0.6} end={['top', 0.7]}>
           <div>
             <p className="scrub__i rise" style={{ '--i': 0 }}>Have a role, a project, or a good technical rabbit hole?</p>
             <a className="contact-email scrub__i rise" style={{ '--i': 1 }} href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
-            <div className="copy-row scrub__i rise" style={{ '--i': 2 }}><button type="button" className="btn-magnet" onClick={copyEmail}>Copy email<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V4H4v12h4" /></svg></button><span role="status">{copyStatus}</span></div>
+            <div className="copy-row scrub__i rise" style={{ '--i': 2 }}><button type="button" onClick={copyEmail}>Copy email<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V4H4v12h4" /></svg></button><span role="status">{copyStatus}</span></div>
           </div>
           <div className="contact-links scrub__i rise" style={{ '--i': 3 }}><ExternalLink href={PROFILE.linkedin}>LinkedIn</ExternalLink><ExternalLink href={PROFILE.github}>GitHub</ExternalLink><a className="text-link" href={SOFTWARE_RESUME.file} target="_blank" rel="noopener noreferrer">Résumé<Arrow /></a></div>
         </Scrub>

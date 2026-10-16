@@ -24,9 +24,12 @@ test('gives hiring teams a résumé, contact, and working section destinations',
   expect(screen.getByText('In development · Private repository')).toBeInTheDocument();
 });
 
-test('the ticker carries the stack and reads as one list', () => {
+test('every skill on the résumé is readable at rest, grouped', () => {
   render(<App />);
-  expect(screen.getByLabelText(/C# \/ \.NET, Revit API/)).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Tools of the trade.' })).toBeInTheDocument();
+  expect(screen.getByText('Languages')).toBeInTheDocument();
+  expect(screen.getByText('Revit API')).toHaveClass('is-daily');
+  expect(screen.getByText('Hashcat')).not.toHaveClass('is-daily');
 });
 
 test('software stack choices update the explanation and accessible diagram', () => {
