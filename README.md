@@ -8,6 +8,7 @@ One page: intro, profile, experience, work, security, a panel that pulls recent 
 
 Everything in `src/fx/` is hand-written; there is no animation library.
 
+- `Fluid` — a GPU fluid simulation behind the intro (advection, vorticity confinement, Jacobi pressure) in raw WebGL. Green ink that stirs itself and follows the pointer; multiply-blended on light, screen-blended on dark; fades out past the intro. Falls back to a 2D particle field without renderable half-float textures.
 - `Wireframe` — a wireframe `</>` on a 2D canvas with a hand-rolled perspective projection. Drag to orbit, with inertia.
 - `ProjectSheet` — a card grows into a full-screen sheet (a FLIP transform) and closes back into place. Deep-linkable via `#p-<id>`.
 - `DineSensePulse` — live counts from DineSense's production database through `pulse()`, a count-only function callable with the publishable key.

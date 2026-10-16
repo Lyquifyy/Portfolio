@@ -272,7 +272,7 @@ p { margin: 0; }
    4. Page shell + chapters
    -------------------------------------------------------------------------- */
 
-.page { padding: 0 var(--gutter); }
+.page { position: relative; z-index: 1; padding: 0 var(--gutter); }
 
 .chapter {
   max-width: var(--shell);
@@ -371,6 +371,7 @@ p { margin: 0; }
 
 .hero__model {
   position: relative;
+  z-index: 1;
   width: 100%;
   aspect-ratio: 1;
   max-height: 520px;
