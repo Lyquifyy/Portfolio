@@ -1,30 +1,48 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useRequestTrace from '../hooks/useRequestTrace';
 import useTilt from '../hooks/useTilt';
-import useProgress from '../motion/useProgress';
+import { subscribe } from '../motion/scroll';
 
 /*
  * The exploded software stack. It assembles on load, then requests cycle
  * through it on their own. Resting the pointer on a layer or its label
  * selects it; the whole drawing leans towards the pointer and the layers
- * drift further apart as the intro scrolls away.
+ * drift further apart as the intro scrolls away. The explode follows the
+ * intro section's own progress (0 at the top of the page), and the signal
+ * path is recomputed from it so the lines always meet the pins.
  */
 const LAYERS = [
   { name: 'Interface', tools: 'React · SwiftUI', detail: 'Interfaces that make the complicated feel simple.', position: -108 },
   { name: 'Logic', tools: 'C# / .NET · TypeScript', detail: 'Business logic and integrations that do the heavy lifting.', position: 0 },
   { name: 'Data', tools: 'PostgreSQL · Oracle', detail: 'A dependable foundation, from schema to access control.', position: 108 },
 ];
-const SIGNALS = ['M90 121H62V229H90', 'M90 229H62V337H90', 'M90 337H62V229H90', 'M90 229H62V121H90'];
+const HOPS = [[0, 1], [1, 2], [2, 1], [1, 0]];
+const PIN_Y = 229;
+const EXPLODE = 1.1;
+const pinY = (i, p) => PIN_Y + LAYERS[i].position * (1 + p * EXPLODE);
+const signalPath = (phase, p) => { const [a, b] = HOPS[phase]; return `M90 ${pinY(a, p)}H62V${pinY(b, p)}H90`; };
 const STEPS = ['Interface sends a request', 'Logic processes the request', 'Data returns a result', 'Logic prepares the response', 'Interface renders the result'];
 
 export default function SystemSketch() {
   const [selected, setSelected] = useState(1);
   const trace = useRequestTrace();
   const tilt = useTilt({ max: 7 });
-  const progress = useProgress({ start: ['top', 0.3], end: ['bottom', 0] });
+  const explode = useRef(0);
+  const signal = useRef(null);
   const highlighted = trace.running ? trace.activeLayer : selected;
 
-  const setRefs = (node) => { trace.element.current = node; tilt.current = node; progress.current = node; };
+  // Follow the intro's progress so the explode is zero at rest and the
+  // signal path keeps meeting the pins while the layers move.
+  useEffect(() => {
+    const hero = tilt.current?.closest('.hero');
+    if (!hero) return undefined;
+    return subscribe(hero, (p) => {
+      explode.current = p;
+      if (signal.current) signal.current.setAttribute('d', signalPath(Number(signal.current.dataset.phase), p));
+    }, { start: ['top', 0], end: ['bottom', 0.2] });
+  }, [tilt]);
+
+  const setRefs = (node) => { trace.element.current = node; tilt.current = node; };
   const choose = (i) => { trace.stop(); setSelected(i); };
 
   return (
@@ -68,7 +86,7 @@ export default function SystemSketch() {
             <text className="sketch-label" x="548" y="228">{['UI', 'API', 'DB'][i]}</text>
           </g>
         ))}
-        {trace.running && trace.phase < 4 && <path key={trace.phase} className="sketch-signal" d={SIGNALS[trace.phase]} pathLength="1" fill="none" />}
+        {trace.running && trace.phase < 4 && <path key={trace.phase} ref={signal} data-phase={trace.phase} className="sketch-signal" d={signalPath(trace.phase, explode.current)} pathLength="1" fill="none" />}
       </svg>
       <figcaption>
         <div className="sketch-selector" role="group" aria-label="Explore the software stack">

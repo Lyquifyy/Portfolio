@@ -25,12 +25,17 @@ export default function SignalRail({ stations, active }) {
       }));
     };
     measure();
+    let lastSp = -1;
     const unsub = onFrame((state) => {
       const max = Math.max(1, document.documentElement.scrollHeight - state.vh);
-      el.style.setProperty('--sp', Math.min(1, state.y / max).toFixed(4));
-      el.style.setProperty('--sv', Math.max(-30, Math.min(30, state.v)).toFixed(2));
-      if (++tick % 60 === 0 && document.documentElement.scrollHeight !== lastH) measure();
+      const sp = Math.min(1, state.y / max).toFixed(4);
+      if (sp !== lastSp) { lastSp = sp; el.style.setProperty('--sp', sp); }
+      if (++tick % 60 === 0) {
+        el.style.setProperty('--rail-px', `${el.clientHeight}px`);
+        if (document.documentElement.scrollHeight !== lastH) measure();
+      }
     });
+    el.style.setProperty('--rail-px', `${el.clientHeight}px`);
     window.addEventListener('resize', measure);
     return () => { unsub(); window.removeEventListener('resize', measure); };
   }, [stations]);

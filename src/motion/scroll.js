@@ -6,8 +6,7 @@
  *    keyboard and the scrollbar stay native, and any scroll we did not cause
  *    hands control straight back. Sticky layout, anchors, find-in-page and
  *    everything else keep working because the document really scrolls.
- *  - Scroll velocity, smoothed, published as --vy on <html> so CSS can skew
- *    and stretch things while the page is moving.
+ *  - Scroll velocity, smoothed, for the per-frame subscribers.
  *  - Per-element progress: 0 → 1 as an element travels between two viewport
  *    positions, written to --p on the element. All the scrubbed animations
  *    on the page are plain CSS reading that variable.
@@ -38,9 +37,9 @@ function scrollsInside(target, dy) {
   // Let a scrollable box (palette list, project sheet) take the wheel first.
   let el = target;
   while (el && el !== document.body && el !== document.documentElement) {
-    if (el instanceof Element) {
+    if (el instanceof Element && el.scrollHeight > el.clientHeight + 1) {
       const s = getComputedStyle(el);
-      if (/(auto|scroll)/.test(s.overflowY) && el.scrollHeight > el.clientHeight + 1) {
+      if (/(auto|scroll)/.test(s.overflowY)) {
         if (dy < 0 && el.scrollTop > 0) return true;
         if (dy > 0 && el.scrollTop + el.clientHeight < el.scrollHeight - 1) return true;
       }
@@ -144,8 +143,6 @@ function loop(now) {
   state.v = state.v + (v * (16.7 / Math.max(1, dt)) - state.v) * k;
   if (Math.abs(state.v) < 0.05) state.v = 0;
   if (v !== 0) dirty = true;
-
-  document.documentElement.style.setProperty('--vy', state.v.toFixed(2));
 
   if (dirty) {
     dirty = false;
