@@ -1,653 +1,168 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import emailjs from 'emailjs-com';
+import { useEffect, useRef, useState } from 'react';
 import './App.css';
-import './fx/fx.css';
-
-import portrait from './images/portrait.jpg';
-import { ThemeContext } from './context/ThemeContext';
-import { ThemeSwitch } from './components/ThemeSwitch';
-import ChapterRail from './components/ChapterRail';
-import CommandPalette from './components/CommandPalette';
-import GitHubLive from './components/GitHubLive';
-
-import Glow from './fx/Glow';
-import Wireframe from './fx/Wireframe';
-import Timeline from './fx/Timeline';
-import { useFileMeta } from './hooks/useFileMeta';
-import Terminal from './fx/Terminal';
-import SheetRail from './fx/SheetRail';
-import ProjectSheet from './fx/ProjectSheet';
-import DineSensePulse from './fx/DineSensePulse';
-import DynamicIsland from './fx/DynamicIsland';
-
-import { PROFILE, RESUMES, BACKLOG } from './data/profile';
+import portrait from './images/portrait-sm.jpg';
+import SystemSketch from './components/SystemSketch';
+import WorkoutDemo from './components/WorkoutDemo';
+import ArchitecturePreview from './components/ArchitecturePreview';
+import { PROFILE, RESUMES } from './data/profile';
 import { EXPERIENCE } from './data/experience';
 import { PROJECTS } from './data/projects';
-import { SECURITY, SESSION } from './data/security';
 
-const CHAPTERS = [
-  { id: 'top',        label: 'Intro'      },
-  { id: 'profile',    label: 'Profile'    },
-  { id: 'experience', label: 'Experience' },
-  { id: 'projects',   label: 'Work'       },
-  { id: 'security',   label: 'Security'   },
-  { id: 'github',     label: 'GitHub'     },
-  { id: 'resumes',    label: 'Résumés'    },
-  { id: 'backlog',    label: 'Backlog'    },
-  { id: 'contact',    label: 'Contact'    },
-];
+const ASSET = process.env.PUBLIC_URL;
+const SOFTWARE_RESUME = RESUMES.find(resume => resume.id === 'software');
+const NAV = [{ id: 'projects', label: 'Work' }, { id: 'experience', label: 'Experience' }, { id: 'about', label: 'About' }];
+const projectById = id => PROJECTS.find(project => project.id === id);
 
-const YEAR = new Date().getFullYear();
-
-// Live pieces shown inside a project's sheet.
-const DEMOS = {
-  dinesense: () => <DineSensePulse />,
-  programmed: () => <DynamicIsland />,
-};
-
-function Chapter({ id, title, children, className = '', wide = false }) {
-  return (
-    <section id={id} className={`chapter ${wide ? 'chapter--wide' : ''} ${className}`.trim()}>
-      <h2 className="chapter__title reveal">{title}</h2>
-      {children}
-    </section>
-  );
+function Arrow({ direction = 'up', className = '' }) {
+  return <svg className={`arrow-icon ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{direction === 'down' ? <path d="M12 4v16m-7-7 7 7 7-7" /> : <path d="M5 19 19 5M5 5h14v14" />}</svg>;
 }
 
-function TechList({ items, className = '' }) {
-  return (
-    <p className={`techs ${className}`.trim()}>
-      {items.map((t, i) => (
-        <React.Fragment key={t}>
-          {i > 0 && <span className="techs__sep" aria-hidden="true"> · </span>}
-          <span>{t}</span>
-        </React.Fragment>
-      ))}
-    </p>
-  );
+function ExternalLink({ href, children, className = '' }) {
+  return <a className={`text-link ${className}`} href={href} target="_blank" rel="noopener noreferrer">{children}<Arrow /></a>;
 }
 
-/* ---- Prose wired to the work it mentions ---------------------------------- */
-
-const WIRES = [
-  ...PROJECTS.map(p => ({ match: p.title, kind: 'project', id: p.id })),
-  { match: 'National Cyber League', kind: 'section', id: 'security' },
-  { match: 'PEC', kind: 'job', id: 0 },
-  { match: 'Flint Hills Resources', kind: 'job', id: 1 },
-  { match: 'Integra Technologies', kind: 'job', id: 2 },
-];
-const WIRE_RE = new RegExp(`(${WIRES.map(w => w.match.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).sort((a, b) => b.length - a.length).join('|')})`, 'g');
-
-function Wired({ text, onProject, onJob, onSection }) {
-  const parts = text.split(WIRE_RE);
-  return parts.map((part, i) => {
-    const w = WIRES.find(x => x.match === part);
-    if (!w) return <React.Fragment key={i}>{part}</React.Fragment>;
-    const go = (e) => {
-      if (w.kind === 'project') onProject(w.id, e.currentTarget);
-      else if (w.kind === 'job') onJob(w.id);
-      else onSection(w.id);
-    };
-    return <button type="button" key={i} className="wired" onClick={go}>{part}</button>;
-  });
+function Tags({ items }) {
+  return <ul className="tech-tags" aria-label="Technologies">{items.map(item => <li key={item}>{item}</li>)}</ul>;
 }
 
-/* ---- Résumé file facts ---------------------------------------------------- */
-
-function FileFacts({ file }) {
-  const meta = useFileMeta(file);
-  if (!meta || (!meta.kb && !meta.updated)) return <p className="facts-line">PDF</p>;
-  return (
-    <p className="facts-line">
-      PDF{meta.kb ? ` · ${meta.kb} KB` : ''}{meta.updated ? ` · published ${meta.updated.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}
-    </p>
-  );
+function EngineeringNotes({ project, children }) {
+  return <details className="engineering-notes"><summary>Under the hood<span className="details-toggle" aria-hidden="true" /></summary><div>{children || <ul>{project.highlights.map(highlight => <li key={highlight}>{highlight}</li>)}</ul>}</div></details>;
 }
 
-/* ---- Local time where the reply comes from -------------------------------- */
-
-function WichitaClock() {
-  const [now, setNow] = useState(() => new Date());
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 30000);
-    return () => clearInterval(id);
-  }, []);
-  const time = new Intl.DateTimeFormat([], { hour: 'numeric', minute: '2-digit', timeZone: 'America/Chicago' }).format(now);
-  const hour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'America/Chicago' }).format(now));
-  const awake = hour >= 8 && hour < 23;
-  return (
-    <p className="clock">
-      <span className={`clock__dot${awake ? ' is-awake' : ''}`} aria-hidden="true" />
-      {time} in Wichita
-    </p>
-  );
-}
-
-const horizonMonths = (h) => { const m = h.match(/(\d+)/); return m ? Number(m[1]) : 2; };
-
-/* ---- Skills cross-referenced with the work that used them ------------------ */
-
-function tokens(skill) {
-  return skill.toLowerCase().replace(/[()]/g, ',').split(/,|\s\/\s/)
-    .map(t => t.trim()).filter(Boolean);
-}
-
-function techMatches(tech, tok) {
-  const t = tech.toLowerCase();
-  if (t === tok) return true;
-  if (t.startsWith(`${tok} `) && /^\d/.test(t.slice(tok.length + 1))) return true;   // "react 19", ".net 8", "swift 6"
-  if ((tok.includes('.') || tok.length >= 6) && t.includes(tok)) return true;        // "asp.net core", "typescript"
-  return false;
-}
-
-function usedIn(skill) {
-  const toks = tokens(skill);
-  const hit = (techs) => techs.some(t => toks.some(tok => techMatches(t, tok)));
-  return {
-    projects: PROJECTS.filter(p => hit(p.techs)),
-    jobs: EXPERIENCE.filter(j => hit(j.techs)),
-  };
-}
-
-function Skills({ onOpen, onJob }) {
-  const [active, setActive] = useState(null);
-  const groups = useMemo(() => PROFILE.skills.map(g => ({
-    ...g,
-    items: g.items.map(s => ({ name: s, ...usedIn(s) })),
-  })), []);
-  const current = active && groups.flatMap(g => g.items).find(s => s.name === active);
-
-  return (
-    <div className="skills">
-      {groups.map(g => (
-        <div className="skills__group" key={g.group}>
-          <h3 className="skills__name">{g.group}</h3>
-          <div className="skills__chips">
-            {g.items.map(s => {
-              const n = s.projects.length + s.jobs.length;
-              return (
-                <button
-                  type="button"
-                  key={s.name}
-                  className={`chip${active === s.name ? ' is-active' : ''}${n ? '' : ' chip--quiet'}`}
-                  onClick={() => setActive(a => (a === s.name ? null : s.name))}
-                  aria-pressed={active === s.name}
-                >
-                  {s.name}{n > 0 && <span className="chip__n">{n}</span>}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ))}
-      <div className="skills__used" aria-live="polite">
-        {current && (current.projects.length + current.jobs.length === 0) && (
-          <p><strong>{current.name}</strong> is on the résumé but not attached to a project here.</p>
-        )}
-        {current && (current.projects.length + current.jobs.length > 0) && (
-          <>
-            <p><strong>{current.name}</strong> shows up in</p>
-            <ul>
-              {current.jobs.map(j => (
-                <li key={j.company}><button type="button" className="link" onClick={onJob}>{j.role}, {j.company}</button></li>
-              ))}
-              {current.projects.map(p => (
-                <li key={p.id}><button type="button" className="link" onClick={(e) => onOpen(p.id, e.currentTarget)}>{p.title}</button> <span className="muted">· {p.kind}</span></li>
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
+function DineSensePreview() {
+  const [screen, setScreen] = useState('order');
+  const screens = [
+    { id: 'target', label: 'Set a target', alt: 'DineSense meal target preview' },
+    { id: 'results', label: 'Compare options', alt: 'DineSense restaurant results preview' },
+    { id: 'order', label: 'Make it yours', alt: 'DineSense customized order preview' },
+  ];
+  return <div className="dinesense-preview project-stage">
+    <div className="dinesense-preview__wordmark">DineSense<span>A little clarity<br />on the menu.</span></div>
+    <div className="dinesense-preview__phones">
+      <img className="preview-phone preview-phone--back" src={`${ASSET}/images/dinesense-target.webp`} alt="" width="440" height="956" loading="lazy" />
+      <img key={screen} className="preview-phone preview-phone--front" src={`${ASSET}/images/dinesense-${screen}.webp`} alt={screens.find(item => item.id === screen).alt} width={screen === 'order' ? '880' : '440'} height={screen === 'order' ? '1912' : '956'} loading="lazy" />
     </div>
-  );
+    <div className="preview-controls"><div className="preview-selector" role="group" aria-label="DineSense app previews">{screens.map(item => <button key={item.id} type="button" aria-pressed={screen === item.id} onClick={() => setScreen(item.id)}>{item.label}</button>)}</div>
+    <p className="preview-credit">App previews from dinesense.app</p></div>
+  </div>;
+}
+
+function ProjectFeature({ id, title, description, note, children }) {
+  const project = projectById(id);
+  return <article className={`project-feature project-feature--${id}`} id={`p-${id}`}>
+    <div className="project-feature__visual">{children}</div>
+    <div className="project-feature__copy">
+      <h3>{project.title}</h3>
+      <div className="project-meta"><span>{project.kind}</span><span>{project.year}</span></div>
+      <p className="project-thesis">{title}</p>
+      <p className="project-description">{description}</p>
+      <Tags items={id === 'dinesense' ? ['Swift', 'Supabase', 'PostgreSQL'] : id === 'programmed' ? ['SwiftUI', 'SwiftData', 'HealthKit', 'Supabase'] : ['C# / .NET 8', 'React', 'PostgreSQL']} />
+      <p className="project-status"><span className="status-dot" />{note}</p>
+      <EngineeringNotes project={project} />
+      <div className="project-links">{project.live && <ExternalLink href={project.live}>Visit DineSense</ExternalLink>}{project.repo && <ExternalLink href={project.repo}>{id === 'dinesense' ? 'Website source' : 'Explore the code'}</ExternalLink>}{!project.repo && <a className="text-link" href={`mailto:${PROFILE.email}?subject=Let's%20talk%20about%20Programmed`}>Let’s talk about the build<Arrow /></a>}</div>
+    </div>
+  </article>;
 }
 
 export default function App() {
-  const { dark, setDark } = useContext(ThemeContext);
-  const [active, setActive] = useState(0);
-  const [paletteOpen, setPaletteOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
-  const [formStatus, setFormStatus] = useState('idle');
-  const [copied, setCopied] = useState(false);
-  const [xray, setXray] = useState(false);
-  const [activeJob, setActiveJob] = useState(null);
-  const [hoverCard, setHoverCard] = useState(null);
-  const [open, setOpen] = useState(() => {
-    const m = typeof window !== 'undefined' && window.location.hash.match(/^#p-([a-z0-9-]+)$/);
-    return m && PROJECTS.some(p => p.id === m[1]) ? { id: m[1], from: null } : null;
-  });
+  const [active, setActive] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState('');
+  const copyTimer = useRef(null);
+  const menuButton = useRef(null);
 
-  const scrollTo = useCallback((id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, []);
-
-  const openProject = useCallback((id, el) => {
-    const from = el ? el.getBoundingClientRect() : null;
-    setOpen({ id, from: from ? { left: from.left, top: from.top, width: from.width, height: from.height } : null });
-    try { window.history.replaceState(null, '', `#p-${id}`); } catch {}
-  }, []);
-
-  const focusJob = useCallback((i) => {
-    setActiveJob(i);
-    scrollTo('experience');
-    setTimeout(() => setActiveJob(null), 4000);
-  }, [scrollTo]);
-
-  const closeProject = useCallback(() => {
-    setOpen(null);
-    try { window.history.replaceState(null, '', window.location.pathname + window.location.search); } catch {}
-  }, []);
-
-  // Scroll reveals. Anything already on screen is shown at once; the observer
-  // handles the rest as it scrolls into view. A scroll/resize fallback covers
-  // environments where IntersectionObserver is throttled or missing.
   useEffect(() => {
-    const nodes = Array.from(document.querySelectorAll('.reveal'));
-    const showVisible = () => {
-      const vh = window.innerHeight;
-      nodes.forEach(el => {
-        if (el.classList.contains('revealed')) return;
-        const r = el.getBoundingClientRect();
-        if (r.top < vh - 20 && r.bottom > 0) el.classList.add('revealed');
-      });
-    };
-    showVisible();
+    if (!window.IntersectionObserver) return undefined;
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) setActive(entry.target.id); });
+    }, { rootMargin: '-15% 0px -55% 0px' });
+    ['top', ...NAV.map(item => item.id), 'contact'].forEach(id => { const element = document.getElementById(id); if (element) observer.observe(element); });
+    return () => observer.disconnect();
+  }, []);
 
-    let io = null;
-    if (typeof IntersectionObserver !== 'undefined') {
-      io = new IntersectionObserver(
-        entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('revealed'); }),
-        { threshold: 0.08, rootMargin: '0px 0px -40px 0px' }
-      );
-      nodes.forEach(el => io.observe(el));
+  useEffect(() => {
+    function closeMenu(event) {
+      if (event.key === 'Escape' && menuOpen) { setMenuOpen(false); menuButton.current?.focus(); }
     }
-    window.addEventListener('scroll', showVisible, { passive: true });
-    window.addEventListener('resize', showVisible);
-    return () => {
-      io?.disconnect();
-      window.removeEventListener('scroll', showVisible);
-      window.removeEventListener('resize', showVisible);
-    };
-  }, []);
+    window.addEventListener('keydown', closeMenu);
+    return () => window.removeEventListener('keydown', closeMenu);
+  }, [menuOpen]);
 
-  // Active chapter tracking
-  useEffect(() => {
-    if (typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver(
-      entries => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            const idx = CHAPTERS.findIndex(c => c.id === e.target.id);
-            if (idx !== -1) setActive(idx);
-          }
-        });
-      },
-      { rootMargin: '-40% 0px -55% 0px', threshold: 0 }
-    );
-    CHAPTERS.forEach(c => {
-      const el = document.getElementById(c.id);
-      if (el) io.observe(el);
-    });
-    return () => io.disconnect();
-  }, []);
+  useEffect(() => () => clearTimeout(copyTimer.current), []);
 
-  // ⌘K / Ctrl+K
-  useEffect(() => {
-    const onKey = (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        setPaletteOpen(o => !o);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  async function copyEmail() {
+    clearTimeout(copyTimer.current);
+    try {
+      if (!navigator.clipboard) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(PROFILE.email);
+      setCopyStatus('Email copied.');
+    } catch {
+      setCopyStatus('Copy unavailable. Use the email link to get in touch.');
+    }
+    copyTimer.current = setTimeout(() => setCopyStatus(''), 5000);
+  }
 
-  // Lock scroll while the palette is open
-  useEffect(() => {
-    document.body.style.overflow = paletteOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [paletteOpen]);
+  return <div className="portfolio">
+    <a className="skip-link" href="#main">Skip to content</a>
+    <header className="site-header">
+      <a className="identity" href="#top" aria-label="Zander Erwin, back to top"><span className="identity__mark" aria-hidden="true">ze.</span><span>Zander Erwin<small>Software Engineer</small></span></a>
+      <button className="menu-button" type="button" ref={menuButton} aria-expanded={menuOpen} aria-controls="primary-nav" onClick={() => setMenuOpen(value => !value)}>{menuOpen ? 'Close' : 'Menu'}<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h12" />{!menuOpen && <path d="M10 4v12" />}</svg></button>
+      <nav id="primary-nav" className={`primary-nav${menuOpen ? ' is-open' : ''}`} aria-label="Main navigation">
+        {NAV.map(item => <a key={item.id} href={`#${item.id}`} aria-current={active === item.id ? 'location' : undefined} onClick={() => setMenuOpen(false)}>{item.label}</a>)}
+        <a className="nav-contact" href="#contact" onClick={() => setMenuOpen(false)}>Let’s talk<Arrow /></a>
+      </nav>
+    </header>
 
-  useEffect(() => {
-    document.body.classList.toggle('xray', xray);
-    return () => document.body.classList.remove('xray');
-  }, [xray]);
-
-  const copyEmail = useCallback(() => {
-    navigator.clipboard?.writeText(PROFILE.email).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
-    }).catch(() => {});
-  }, []);
-
-  const actions = useMemo(() => [
-    ...CHAPTERS.map(c => ({
-      id: `go-${c.id}`, group: 'Go to', label: c.label, run: () => scrollTo(c.id),
-    })),
-    ...PROJECTS.map(p => ({
-      id: `p-${p.id}`, group: 'Projects', label: p.title, hint: p.kind, run: () => openProject(p.id, null),
-    })),
-    { id: 'open-github', group: 'Open', label: 'GitHub profile', hint: 'Lyquifyy', run: () => window.open(PROFILE.github, '_blank', 'noopener') },
-    { id: 'open-linkedin', group: 'Open', label: 'LinkedIn', hint: 'zander-erwin', run: () => window.open(PROFILE.linkedin, '_blank', 'noopener') },
-    { id: 'open-dinesense', group: 'Open', label: 'DineSense', hint: 'dinesense.app', run: () => window.open('https://dinesense.app', '_blank', 'noopener') },
-    ...RESUMES.map(r => ({
-      id: `dl-${r.id}`, group: 'Download', label: `${r.title} résumé`, hint: 'PDF', run: () => window.open(r.file, '_blank', 'noopener'),
-    })),
-    { id: 'copy-email', group: 'Contact', label: 'Copy email address', hint: PROFILE.email, run: copyEmail },
-    { id: 'mail', group: 'Contact', label: 'Compose an email', hint: 'mailto', run: () => { window.location.href = `mailto:${PROFILE.email}`; } },
-    { id: 'theme', group: 'View', label: dark ? 'Switch to light' : 'Switch to dark', hint: 'theme', run: () => setDark(!dark) },
-    { id: 'xray', group: 'View', label: xray ? 'Leave X-ray view' : 'X-ray view', hint: 'outline every box', run: () => setXray(x => !x) },
-  ], [dark, setDark, scrollTo, copyEmail, xray, openProject]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setFormStatus('sending');
-    emailjs
-      .send('service_urtbt14', 'template_8sfqyrn', {
-        from_name: form.name, from_email: form.email, message: form.message,
-      }, 'PTuqiFviGAOMEb1v5')
-      .then(() => { setFormStatus('success'); setForm({ name: '', email: '', message: '' }); })
-      .catch(() => setFormStatus('error'));
-  };
-
-  const email = PROFILE.email;
-  const openProjectData = open && PROJECTS.find(p => p.id === open.id);
-
-  return (
-    <div className="app">
-      <a className="skip" href="#profile">Skip to content</a>
-
-      <Glow />
-
-
-      {/* ------------------------------------------------ Masthead bar */}
-      <header className="masthead">
-        <button type="button" className="masthead__brand" onClick={() => scrollTo('top')}>
-          <span className="masthead__mark" aria-hidden="true">ZE</span>
-          <span className="masthead__name">Zander Erwin</span>
-        </button>
-        <nav className="masthead__links" aria-label="External links">
-          <a href={PROFILE.github} target="_blank" rel="noopener noreferrer">GitHub</a>
-          <a href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-          <a href={`mailto:${email}`}>Email</a>
-          <button type="button" className="masthead__cmd" onClick={() => setPaletteOpen(true)} aria-haspopup="dialog" title="⌘K / Ctrl+K">Search</button>
-          <ThemeSwitch />
-        </nav>
-      </header>
-
-      <ChapterRail chapters={CHAPTERS} active={active} onSelect={scrollTo} />
-
-      <main className="page">
-        {/* ------------------------------------------------ Intro */}
-        <section id="top" className="hero">
-          <div className="hero__grid">
-            <div className="hero__text">
-              <h1 className="hero__name reveal">
-                <span>Zander</span>
-                <span className="hero__name-last">Erwin</span>
-              </h1>
-              <p className="hero__role reveal">{PROFILE.status}. {PROFILE.based}.</p>
-              <p className="hero__thesis reveal">{PROFILE.thesis}</p>
-              <div className="hero__actions reveal">
-                <button type="button" className="btn btn--solid" onClick={() => scrollTo('projects')}>See the work</button>
-                <a className="btn" href={RESUMES[0].file} download>Résumé</a>
-              </div>
-            </div>
-            <div className="hero__model reveal">
-              <Wireframe />
-            </div>
+    <main id="main">
+      <section className="hero" id="top" aria-labelledby="hero-title">
+        <div className="hero__main page-width">
+          <div className="hero__copy">
+            <h1 id="hero-title">I make the <br />pieces work <br /><span>together.</span></h1>
+            <p>I’m Zander, a software engineer connecting complex systems and building products from the first idea to the last detail.</p>
+            <div className="hero__actions"><a className="button button--light" href="#projects">Explore my work<Arrow direction="down" /></a><a className="hero__resume" href={SOFTWARE_RESUME.file} target="_blank" rel="noopener noreferrer">Résumé <span>PDF</span><Arrow /></a></div>
           </div>
+          <SystemSketch />
+        </div>
         </section>
 
-        {/* ------------------------------------------------ Profile */}
-        <Chapter id="profile" title="Profile">
-          <div className="split">
-            <div className="prose">
-              {PROFILE.about.map((p, i) => (
-                <p key={i} className="reveal"><Wired text={p} onProject={openProject} onJob={focusJob} onSection={scrollTo} /></p>
-              ))}
-              <dl className="edu reveal">
-                {PROFILE.education.map(e => (
-                  <div key={e.degree}>
-                    <dt>{e.period}</dt>
-                    <dd>
-                      <strong>{e.degree}</strong>, {e.school}
-                      {e.note && <span className="edu__note">{e.note}</span>}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-            <figure className="portrait reveal">
-              <img
-                src={portrait}
-                alt="Studio portrait of Zander Erwin smiling, wearing a light collared shirt"
-                width="1066" height="1600"
-                loading="lazy"
-              />
-            </figure>
-          </div>
+      <section className="work-section page-width" id="projects" aria-labelledby="work-title">
+        <header className="section-heading"><h2 id="work-title">Built with <br /><span>purpose.</span></h2><p>Products I care about.<br />Engineering I can walk you through.</p></header>
+        <ProjectFeature id="dinesense" title="A better answer to “what should I order?”" description="A native iOS app that brings your daily nutrition budget to the restaurant menu. Set a target, compare dishes, and bring your choice back into the day’s totals." note="Invite-only pilot">
+          <DineSensePreview />
+        </ProjectFeature>
+        <ProjectFeature id="programmed" title="The training plan, and everything around it." description="An offline-first training and nutrition app connecting coaches and athletes. Programs, workout logging, nutrition, and weekly check-ins—with a rest timer that stays on the lock screen." note="In development · Private repository">
+          <WorkoutDemo />
+        </ProjectFeature>
+        <ProjectFeature id="expense-tracker" title="Simple on the surface. Considered underneath." description="A full-stack expense tracker built around clear boundaries: a typed React client, a layered .NET API, and a PostgreSQL database with versioned migrations." note="Full-stack project · Source available">
+          <ArchitecturePreview />
+        </ProjectFeature>
+        <div className="more-work"><h3>A little further down the rabbit hole.</h3><div className="more-work__list">
+          {['sentinel', 'senior-project', 'email-summarizer'].map(id => { const p = projectById(id); return <details key={id} className="project-row" id={`p-${id}`}><summary><span>{p.title}</span><span className="project-row__kind">{p.kind}</span><span className="details-toggle" aria-hidden="true" /></summary><div className="project-row__body"><p>{p.description}</p><Tags items={p.techs.slice(0, 4)} /><div className="project-links">{p.repo ? <ExternalLink href={p.repo}>Explore the code</ExternalLink> : <span>{p.status} · In development</span>}</div></div></details>; })}
+        </div><ExternalLink href={PROFILE.github}>More on GitHub</ExternalLink></div>
+      </section>
 
-          <div className="reveal">
-            <h3 className="sub">Skills, and where each one was used</h3>
-            <Skills onOpen={openProject} onJob={() => scrollTo('experience')} />
-          </div>
-        </Chapter>
+      <section className="experience-section" id="experience" aria-labelledby="experience-title"><div className="page-width experience-layout">
+        <header className="experience-intro"><h2 id="experience-title">Real systems. <br /><span>Real stakes.</span></h2><p>From semiconductor operations to engineering workflows, I build software that other people’s work depends on.</p><a className="text-link" href={SOFTWARE_RESUME.file} target="_blank" rel="noopener noreferrer">The full résumé<Arrow /></a></header>
+        <div className="experience-list">{EXPERIENCE.slice(0, 3).map((job, index) => <article className="job" key={job.company}>
+          <h3>{job.company}</h3>
+          <div className="job__date">{job.start} — {job.end}{index === 0 && <span>Current</span>}</div>
+          <p className="job__role">{job.role}</p>
+          <p className="job__impact">{index === 0 ? 'Replaced a third-party BIM analytics subscription with an in-house integration, delivering five-figure annual savings.' : index === 1 ? 'Modernized .NET applications serving 100+ internal users across accounting platforms.' : 'Built and supported Oracle ERP systems used by 200+ people across the business.'}</p>
+          <details className="job-details"><summary>What I worked on<span className="details-toggle" aria-hidden="true" /></summary><ul>{job.bullets.filter((_, i) => index === 0 ? [0, 1, 3].includes(i) : index === 1 ? [1, 2, 3].includes(i) : [0, 2].includes(i)).map(bullet => <li key={bullet}>{bullet}</li>)}</ul></details>
+          <p className="job__stack">{index === 0 ? 'C# / .NET · Autodesk APIs · TypeScript · Azure' : index === 1 ? 'C# / .NET · Node.js · AWS Lambda · Docker' : 'PL/SQL · Oracle APEX · Oracle Forms'}</p>
+        </article>)}</div>
+      </div></section>
 
-        {/* ------------------------------------------------ Experience */}
-        <Chapter id="experience" title="Experience">
-          <div className="reveal">
-            <Timeline jobs={EXPERIENCE} active={activeJob} onActive={setActiveJob} />
-          </div>
-          <ol className="exp">
-            {EXPERIENCE.map((job, i) => (
-              <li
-                className="exp__item reveal"
-                data-active={activeJob === i || undefined}
-                key={job.company}
-                style={{ transitionDelay: `${i * 0.06}s` }}
-                onMouseEnter={() => setActiveJob(i)}
-                onMouseLeave={() => setActiveJob(null)}
-              >
-                <p className="exp__when">{job.start} – {job.end}</p>
-                <div className="exp__body">
-                  <h3 className="exp__role">{job.role}</h3>
-                  <p className="exp__company">
-                    {job.company}
-                    {job.org && <span className="exp__org"> · {job.org}</span>}
-                    <span className="exp__loc"> · {job.location}</span>
-                  </p>
-                  <p className="exp__summary">{job.summary}</p>
-                  <ul className="bullets">
-                    {job.bullets.map((b, j) => <li key={j}>{b}</li>)}
-                  </ul>
-                  <TechList items={job.techs} />
-                </div>
-              </li>
-            ))}
-          </ol>
-        </Chapter>
+      <section className="about-section page-width" id="about" aria-labelledby="about-title">
+        <figure className="portrait"><img src={portrait} alt="Zander Erwin" width="426" height="640" loading="lazy" /><figcaption>Based in Wichita. Curious everywhere.</figcaption></figure>
+        <div className="about-copy"><h2 id="about-title">Engineer by trade. <br /><span>Builder by default.</span></h2><p>I like understanding the whole thing: the interface someone touches, the service behind it, and the data that makes it useful.</p><p>At PEC, that means Revit add-ins, cloud automation, and integrations between business systems. Outside work, it means turning ideas into products—and maintaining a Linux homelab that keeps me honest about reliability and security.</p><div className="about-education"><span>Wichita State University · 2026</span><strong>B.S. Computer Science</strong><span>Minor in Mathematics</span></div><div className="about-links"><ExternalLink href={PROFILE.github}>GitHub</ExternalLink><ExternalLink href={PROFILE.linkedin}>LinkedIn</ExternalLink></div></div>
+      </section>
 
-        {/* ------------------------------------------------ Work */}
-        <Chapter id="projects" title="Work" wide>
-          <SheetRail
-            count={PROJECTS.length}
-            renderHud={(i) => (
-              <div className="rail-hud" aria-hidden="true">
-                <span className="rail-hud__num">{i + 1} of {PROJECTS.length}</span>
-                <span className="rail-hud__bar"><i /></span>
-                {hoverCard && <span className="rail-hud__hint">{hoverCard}</span>}
-              </div>
-            )}
-          >
-            {PROJECTS.map((p) => (
-              <article
-                className={`sheet${DEMOS[p.id] ? ' sheet--live' : ''}`}
-                key={p.id}
-                onMouseEnter={() => setHoverCard(p.title)}
-                onMouseLeave={() => setHoverCard(null)}
-              >
-                <button
-                  type="button"
-                  className="sheet__hit"
-                  aria-label={`Open ${p.title}`}
-                  onClick={(e) => openProject(p.id, e.currentTarget.closest('.sheet'))}
-                />
-                <h3 className="sheet__title">{p.title}</h3>
-                <p className="sheet__tagline">{p.tagline}</p>
-                <p className="sheet__desc">{p.description}</p>
-                <footer className="sheet__foot">
-                  <TechList items={p.techs.slice(0, 4)} />
-                  <p className="sheet__links">
-                    {DEMOS[p.id] && <span className="sheet__live">Live inside</span>}
-                    {p.live && <a href={p.live} target="_blank" rel="noopener noreferrer">Live ↗</a>}
-                    {p.repo && <a href={p.repo} target="_blank" rel="noopener noreferrer">Source ↗</a>}
-                    <span className="sheet__year">{p.year}</span>
-                  </p>
-                </footer>
-              </article>
-            ))}
-          </SheetRail>
-
-          <div className="pindex reveal">
-            {PROJECTS.map((p) => (
-              <button type="button" className="pindex__row" key={p.id} onClick={(e) => openProject(p.id, e.currentTarget)}>
-                <span className="pindex__title">
-                  <span>{p.title}</span>
-                  <span className="pindex__tagline">{p.tagline}</span>
-                </span>
-                <span className="pindex__stack">{p.techs.slice(0, 3).join(' · ')}</span>
-                <span className="pindex__year">{p.year}</span>
-                <span className="pindex__toggle" aria-hidden="true">Open</span>
-              </button>
-            ))}
-          </div>
-        </Chapter>
-
-        {/* ------------------------------------------------ Security */}
-        <Chapter id="security" title="Security">
-          <div className="sec__top reveal">
-            <Terminal script={SESSION} />
-            <p className="sec__note">
-              Replayed from real sessions: the NAS over a mesh VPN, the CS&nbsp;352 lab range, and National Cyber League traffic and hash work.
-            </p>
-          </div>
-          <div className="sec">
-            {SECURITY.map((s, i) => (
-              <article className="sec__cell reveal" key={s.title} style={{ transitionDelay: `${i * 0.05}s` }}>
-                <p className="sec__meta">{s.label} · {s.when}</p>
-                <h3 className="sec__title">{s.title}</h3>
-                <p className="sec__desc">{s.description}</p>
-                <ul className="bullets">
-                  {s.highlights.map((h, j) => <li key={j}>{h}</li>)}
-                </ul>
-                <TechList items={s.techs} />
-              </article>
-            ))}
-          </div>
-        </Chapter>
-
-        {/* ------------------------------------------------ GitHub */}
-        <Chapter id="github" title="GitHub">
-          <div className="reveal">
-            <GitHubLive user={PROFILE.githubUser} profileUrl={PROFILE.github} />
-          </div>
-        </Chapter>
-
-        {/* ------------------------------------------------ Résumés */}
-        <Chapter id="resumes" title="Résumés">
-          <div className="resumes">
-            {RESUMES.map((r, i) => (
-              <article className="resume reveal" key={r.id} style={{ transitionDelay: `${i * 0.06}s` }}>
-                <h3 className="resume__title">{r.title}</h3>
-                <p className="resume__summary">{r.summary}</p>
-                <FileFacts file={r.file} />
-                <a className="btn" href={r.file} download>Download PDF</a>
-              </article>
-            ))}
-          </div>
-        </Chapter>
-
-        {/* ------------------------------------------------ Backlog */}
-        <Chapter id="backlog" title="Backlog">
-          <ol className="backlog">
-            {BACKLOG.map((b, i) => (
-              <li className="backlog__item reveal" key={b.title} style={{ transitionDelay: `${i * 0.05}s` }}>
-                <div>
-                  <h3 className="backlog__title">{b.title}</h3>
-                  <p className="backlog__desc">{b.description}</p>
-                  <TechList items={b.techs} />
-                </div>
-                <span className="backlog__horizon">
-                  {b.horizon}
-                  <span className="gantt" aria-hidden="true"><i style={{ width: `${Math.min(100, horizonMonths(b.horizon) / 12 * 100)}%` }} /></span>
-                </span>
-              </li>
-            ))}
-          </ol>
-        </Chapter>
-
-        {/* ------------------------------------------------ Contact */}
-        <Chapter id="contact" title="Contact">
-          <div className="split split--contact">
-            <div className="reveal">
-              <p className="contact__lede">Email is fastest. I answer within a day or two.</p>
-              <WichitaClock />
-              <a className="contact__email" href={`mailto:${email}`}>{email}</a>
-              <div className="contact__row">
-                <button type="button" className="btn" onClick={copyEmail}>{copied ? 'Copied' : 'Copy address'}</button>
-                <a className="btn" href={PROFILE.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a>
-              </div>
-            </div>
-            <form className="form reveal" onSubmit={handleSubmit}>
-              <div className="form__row">
-                <label className="field">
-                  <span>Name</span>
-                  <input type="text" name="name" value={form.name} required autoComplete="name"
-                    onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
-                </label>
-                <label className="field">
-                  <span>Email</span>
-                  <input type="email" name="email" value={form.email} required autoComplete="email"
-                    onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
-                </label>
-              </div>
-              <label className="field">
-                <span>Message</span>
-                <textarea name="message" rows={5} value={form.message} required
-                  onChange={e => setForm(f => ({ ...f, message: e.target.value }))} />
-              </label>
-              <div className="form__foot">
-                <button type="submit" className="btn btn--solid" disabled={formStatus === 'sending'}>
-                  {formStatus === 'sending' ? 'Sending…' : 'Send'}
-                </button>
-                <p className="form__status" role="status" aria-live="polite">
-                  {formStatus === 'success' && 'Sent. I will reply soon.'}
-                  {formStatus === 'error' && 'That did not go through. Email me directly instead.'}
-                </p>
-              </div>
-            </form>
-          </div>
-        </Chapter>
-      </main>
-
-      <footer className="colophon">
-        <p>© {YEAR} Zander Erwin</p>
-      </footer>
-
-      {openProjectData && (
-        <ProjectSheet
-          key={openProjectData.id}
-          project={openProjectData}
-          from={open.from}
-          demo={DEMOS[openProjectData.id] ? DEMOS[openProjectData.id]() : null}
-          onClose={closeProject}
-          techList={TechList}
-        />
-      )}
-
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} actions={actions} />
-    </div>
-  );
+      <section className="contact-section" id="contact" aria-labelledby="contact-title"><div className="page-width">
+        <div className="contact-heading"><h2 id="contact-title">Good things start <br />with a conversation.</h2><a className="contact-arrow" href={`mailto:${PROFILE.email}`} aria-label="Email Zander"><Arrow /></a></div>
+        <div className="contact-bottom"><div><p>Have a role, a project, or a good technical rabbit hole?</p><a className="contact-email" href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a><div className="copy-row"><button type="button" onClick={copyEmail}>Copy email<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V4H4v12h4" /></svg></button><span role="status">{copyStatus}</span></div></div><div className="contact-links"><ExternalLink href={PROFILE.linkedin}>LinkedIn</ExternalLink><ExternalLink href={PROFILE.github}>GitHub</ExternalLink><a className="text-link" href={SOFTWARE_RESUME.file} target="_blank" rel="noopener noreferrer">Résumé<Arrow /></a></div></div>
+        <footer className="site-footer"><a href="#top">Zander Erwin<span>© {new Date().getFullYear()}</span></a><span>Thoughtfully built. Always a work in progress.</span><a href="#top">Back to top<Arrow /></a></footer>
+      </div></section>
+    </main>
+  </div>;
 }

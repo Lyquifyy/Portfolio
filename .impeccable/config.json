@@ -1,0 +1,161 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-color",
+        "value": "#121311",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:53.964Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#191a19",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.001Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#1b1c1a",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.029Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#33342f",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.065Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#a6a89f",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.096Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#b41f26",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.127Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#bb2027",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.156Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#c9312c",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.185Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#d2cfc4",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.214Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#d63a33",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.245Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ffffff20",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.275Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ffffff26",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.307Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ffffff28",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.339Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ffffff38",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.375Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#ffffff4d",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.411Z",
+        "reason": "Agent: Programmed artifact material, based on the requested app UI and verified LockerUI theme; intentionally separate from the portfolio site palette."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#0008",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.442Z",
+        "reason": "Agent: reviewed artifact drop-shadow alpha, not a site semantic color; existing depth documented in DESIGN.md."
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#17202b55",
+        "files": [
+          "src/App.css"
+        ],
+        "createdAt": "2026-10-16T13:13:54.474Z",
+        "reason": "Agent: reviewed artifact drop-shadow alpha, not a site semantic color; existing depth documented in DESIGN.md."
+      }
+    ]
+  }
+}

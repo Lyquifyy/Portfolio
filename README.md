@@ -1,56 +1,46 @@
 # Zander Erwin — Portfolio
 
-Personal site, live at <https://lyquifyy.github.io/Portfolio/>.
+A software engineering portfolio, live at https://lyquifyy.github.io/Portfolio/.
 
-One page: intro, profile, experience, work, security, a panel that pulls recent GitHub activity, résumés, backlog, contact. A ⌘K / Ctrl+K palette jumps anywhere, opens links, downloads résumés, flips the theme and toggles an X-ray view. Content lives in `src/data/` and matches the résumés.
+## Source baseline
 
-## Effects
+This redesign starts from `claude/gracious-ritchie-7konnt` at `0e5871b`, verified against the deployed GitHub Pages source map on October 16, 2026. `gh-pages` contains the published build, not the React source. The redesign is on `codex/portfolio-engineering-redesign` and has not been deployed.
 
-Everything in `src/fx/` is hand-written; there is no animation library.
+## Run locally
 
-- `Glow` — three large, soft green glows that drift slowly behind the whole page and ease with scroll. CSS blur on three elements, so near-free.
-- `Wireframe` — a wireframe `</>` with a slow cloud of green points around it, on a 2D canvas with a hand-rolled perspective projection. Drag to orbit, with inertia.
-- `ProjectSheet` — a card grows into a full-screen sheet (a FLIP transform) and closes back into place. Deep-linkable via `#p-<id>`.
-- `DineSensePulse` — live counts from DineSense's production database through `pulse()`, a count-only function callable with the publishable key.
-- `DynamicIsland` — a working recreation of Programmed's Live Activity: rest timer, Set done, +15s, Skip.
-- `Heatmap` — 13 weeks of public pushes from the GitHub events API, drawn on canvas.
-- The skills list cross-references every project and job that used each skill; names in the profile prose open the matching project or job.
-- `Timeline` — the four roles drawn to scale by month; hovering a bar or a job highlights the other.
-- Résumé cards read their PDF's size and last-modified date with a HEAD request; backlog horizons are drawn as proportional bars; contact shows the current time in Wichita.
-- `SheetRail` — scroll-driven horizontal rail of project cards inside a sticky viewport. Native scrolling only. Falls back to scroll-snap below 900px.
-- `Terminal` — a session transcript that types itself when scrolled into view.
-- Theme flip uses the View Transitions API as a circular wipe where available.
-
-All of it respects `prefers-reduced-motion`.
-
-## Stack
-
-- React 19 on Create React App (`react-scripts` 5)
-- Plain CSS with custom properties; light and dark follow the system preference
-- Type: Big Shoulders Display, IBM Plex Sans, IBM Plex Mono (Google Fonts)
-- EmailJS for the contact form (public client keys only)
-- Deployed to GitHub Pages from the `gh-pages` branch
-
-## Develop
-
-```bash
+```sh
 npm install
 npm start
 ```
 
-Opens <http://localhost:3000>. Content lives in `src/data/`; the page layout is `src/App.js`; styles are `src/App.css` and `src/fx/fx.css`.
+Create React App serves the site under `/Portfolio/` to match GitHub Pages.
 
-## Test and build
-
-```bash
+```sh
 npm test -- --watchAll=false
 npm run build
 ```
 
-## Deploy
+## Structure
 
-```bash
+- `src/App.js`: work, experience, about, and contact sections.
+- `src/components/SystemSketch.jsx`: interactive SVG stack with a replayable request/response sequence.
+- `src/components/ArchitecturePreview.jsx`: ExpenseTracker's three-layer architecture and request trace.
+- `src/hooks/useRequestTrace.js`: shared finite playback, visibility cleanup, and reduced-motion handling.
+- `src/components/WorkoutDemo.jsx`: actual Programmed screenshot and source-styled Live Activity adaptation with set logging, a pausable rest timer, and reset.
+- `src/data/`: original project, career, and profile facts. Some historical content is retained here without being promoted on the page.
+- `src/App.css` and `src/index.css`: responsive layout and global styles.
+- `public/fonts/`: portfolio fonts plus Programmed's bundled Barlow Condensed and Archivo; OFL licenses included.
+- `public/images/`: real DineSense and Programmed previews with source attribution.
+- `public/resumes/`: original software and cybersecurity PDFs. The site promotes the software résumé.
+
+`PRODUCT.md` records the audience and factual constraints; `DESIGN.md` records the implemented visual system.
+
+The site needs no backend or API keys. Project details use native disclosures; the contact section links directly to email. The former remote activity feeds, EmailJS form, cursor effects, modal project sheets, theme switch, and speculative backlog have been removed from the interface. All essential content remains visible without animation, and reduced-motion preferences disable motion.
+
+## Deployment
+
+```sh
 npm run deploy
 ```
 
-Builds and pushes the `build/` folder to the `gh-pages` branch. Résumé PDFs live in `public/resumes/`.
+This builds and publishes to `gh-pages`. Run only when ready to update the public site.
